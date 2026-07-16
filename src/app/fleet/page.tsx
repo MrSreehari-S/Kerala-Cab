@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import { getDb } from "@/lib/mongodb";
 import type { Car } from "@/data/cars";
-import { HomeClient } from "./home-client";
+import { FleetPageClient } from "./fleet-client";
+
+export const metadata: Metadata = {
+  title: "Browse Our Fleet — KeralaCabs Premium Car Rentals",
+  description:
+    "Explore our complete collection of luxury sedans, powerful SUVs, elegant wedding cars, and premium self-drive vehicles available across Kerala.",
+};
 
 export const dynamic = "force-dynamic";
 
@@ -29,12 +36,14 @@ async function getCars(): Promise<Car[]> {
     })) as Car[];
   } catch (error) {
     console.error("Failed to fetch cars from MongoDB:", error);
+    // Fall back to static data during build or if MongoDB is unavailable
     const { cars } = await import("@/data/cars");
     return cars;
   }
 }
 
-export default async function Home() {
+export default async function FleetPage() {
   const cars = await getCars();
-  return <HomeClient cars={cars} />;
+
+  return <FleetPageClient cars={cars} />;
 }

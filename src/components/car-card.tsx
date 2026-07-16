@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Users, Fuel, Gauge, Award } from "lucide-react";
+import { Users, Fuel, Gauge, Award, Car as CarIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Car } from "@/data/cars";
@@ -14,10 +14,9 @@ interface CarCardProps {
   priority?: boolean;
 }
 
-const PLACEHOLDER_IMG = "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&q=60";
-
 export function CarCard({ car, onBook, priority = false }: CarCardProps) {
-  const [imgSrc, setImgSrc] = useState(car.images[0] || PLACEHOLDER_IMG);
+  const hasImage = car.images && car.images.length > 0;
+  const [imgSrc, setImgSrc] = useState(hasImage ? car.images[0] : "");
   const [hasError, setHasError] = useState(false);
 
   const categoryLabels: Record<string, string> = {
@@ -37,23 +36,30 @@ export function CarCard({ car, onBook, priority = false }: CarCardProps) {
     >
       {/* ── Image Container — 16:10 aspect ratio ── */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
-        <Image
-          src={hasError ? PLACEHOLDER_IMG : imgSrc}
-          alt={`${car.name} — ${car.tagline}`}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="img-zoom object-cover"
-          onError={() => {
-            if (!hasError) {
-              setHasError(true);
-              setImgSrc(PLACEHOLDER_IMG);
-            }
-          }}
-          priority={priority}
-        />
+        {hasImage && !hasError ? (
+          <Image
+            src={imgSrc}
+            alt={`${car.name} — ${car.tagline}`}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="img-zoom object-cover"
+            onError={() => {
+              if (!hasError) {
+                setHasError(true);
+              }
+            }}
+            priority={priority}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <CarIcon className="h-12 w-12 text-muted-foreground/30" />
+          </div>
+        )}
 
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover/card:opacity-100" />
+        {hasImage && !hasError && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover/card:opacity-100" />
+        )}
 
         {/* Badges */}
         <div className="absolute left-3 top-3 flex gap-2">

@@ -18,7 +18,7 @@ export function HeroSection({ onExploreFleet }: HeroSectionProps) {
       {/* ── Background Image ── */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1920&q=80"
+          src="/herosection.jpg"
           alt="Luxury car on a scenic Kerala road"
           fill
           className="object-cover opacity-40"
@@ -81,7 +81,7 @@ export function HeroSection({ onExploreFleet }: HeroSectionProps) {
             className="flex items-center gap-2 font-sans text-xs text-zinc-400"
           >
             <MapPin className="h-3.5 w-3.5 text-accent" />
-            <span>Kochi · Trivandrum · Calicut · All Kerala</span>
+            <span>Kochi · Trivandrum · Adoor</span>
           </motion.div>
 
           {/* CTAs */}
@@ -104,7 +104,7 @@ export function HeroSection({ onExploreFleet }: HeroSectionProps) {
               className="rounded-full border-white/20 px-8 py-3 font-sans text-sm text-white bg-black backdrop-blur-sm transition-all duration-300 hover:border-accent/50 hover:bg-white/10 h-auto"
               render={
                 <a
-                  href="https://wa.me/919876543210?text=Hello%20KeralaCabs,%20I%20would%20like%20to%20enquire%20about%20a%20car%20rental."
+                  href="https://wa.me/918848228458?text=Hello%20KeralaCabs,%20I%20would%20like%20to%20enquire%20about%20a%20car%20rental."
                   target="_blank"
                   rel="noopener noreferrer"
                 />

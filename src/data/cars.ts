@@ -37,10 +37,7 @@ export const cars: Car[] = [
     fuelType: "Petrol",
     seats: 4,
     isChauffeurOnly: true,
-    images: [
-      "https://images.unsplash.com/photo-1563720223185-11003d516935?w=800&q=80",
-      "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80",
-    ],
+    images: [],
     features: ["Massage Seats", "Ambient Lighting", "Premium Sound System"],
   },
   {
@@ -54,10 +51,7 @@ export const cars: Car[] = [
     fuelType: "Petrol",
     seats: 4,
     isChauffeurOnly: true,
-    images: [
-      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80",
-      "https://images.unsplash.com/photo-1556189250-72ba954cfc2b?w=800&q=80",
-    ],
+    images: [],
     features: ["Executive Lounge", "Gesture Control", "Sky Lounge Roof"],
   },
   {
@@ -70,9 +64,7 @@ export const cars: Car[] = [
     transmission: "Automatic",
     fuelType: "Diesel",
     seats: 5,
-    images: [
-      "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&q=80",
-    ],
+    images: [],
     features: ["Virtual Cockpit", "Matrix LED Lights", "Quattro AWD"],
   },
   {
@@ -85,9 +77,7 @@ export const cars: Car[] = [
     transmission: "Automatic",
     fuelType: "Diesel",
     seats: 7,
-    images: [
-      "https://images.unsplash.com/photo-1625231334401-4c6a76aa586d?w=800&q=80",
-    ],
+    images: [],
     features: ["4WD", "Terrain Management", "Cruise Control"],
   },
   {
@@ -100,9 +90,7 @@ export const cars: Car[] = [
     transmission: "Automatic",
     fuelType: "Petrol",
     seats: 5,
-    images: [
-      "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80",
-    ],
+    images: [],
     features: ["Panoramic Sunroof", "Connected Car Tech", "ADAS"],
   },
   {
@@ -115,9 +103,7 @@ export const cars: Car[] = [
     transmission: "Automatic",
     fuelType: "Diesel",
     seats: 7,
-    images: [
-      "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80",
-    ],
+    images: [],
     features: ["ADAS Level 2", "Dual-Zone Climate", "AdrenoX Connect"],
   },
   {
@@ -130,9 +116,7 @@ export const cars: Car[] = [
     transmission: "Manual",
     fuelType: "Petrol",
     seats: 5,
-    images: [
-      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80",
-    ],
+    images: [],
     features: ["Lane Watch Camera", "Sunroof", "Connected Features"],
   },
   {
@@ -145,9 +129,7 @@ export const cars: Car[] = [
     transmission: "Automatic",
     fuelType: "Petrol",
     seats: 5,
-    images: [
-      "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800&q=80",
-    ],
+    images: [],
     features: ["Ventilated Seats", "ADAS", "Digital Key"],
   },
   {
@@ -160,9 +142,7 @@ export const cars: Car[] = [
     transmission: "Manual",
     fuelType: "Petrol",
     seats: 5,
-    images: [
-      "https://images.unsplash.com/photo-1542362567-b07e54358753?w=800&q=80",
-    ],
+    images: [],
     features: ["Smart Hybrid", "Cruise Control", "Rear AC Vents"],
   },
   {
@@ -176,9 +156,7 @@ export const cars: Car[] = [
     fuelType: "Petrol",
     seats: 4,
     isChauffeurOnly: true,
-    images: [
-      "https://images.unsplash.com/photo-1631295868223-63265b40d9e4?w=800&q=80",
-    ],
+    images: [],
     features: [
       "Starlight Headliner",
       "Bespoke Interior",
@@ -196,9 +174,7 @@ export const cars: Car[] = [
     fuelType: "Petrol",
     seats: 4,
     isChauffeurOnly: true,
-    images: [
-      "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&q=80",
-    ],
+    images: [],
     features: [
       "Floral Decoration Included",
       "Red Carpet Service",
@@ -216,9 +192,7 @@ export const cars: Car[] = [
     fuelType: "Petrol",
     seats: 4,
     isChauffeurOnly: true,
-    images: [
-      "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&q=80",
-    ],
+    images: [],
     features: [
       "Vintage Styling",
       "Open-Top Available",

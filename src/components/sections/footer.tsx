@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import Image from "next/image";
 import {
   Accordion,
   AccordionContent,
@@ -13,6 +14,7 @@ import {
   MapPin,
   Mail,
   Phone,
+  Globe,
 } from "lucide-react";
 
 const faqs = [
@@ -54,30 +56,42 @@ export function FooterSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <h2 className="mb-4 font-serif text-2xl font-bold text-accent tracking-wider">
-                Kerala<span className="text-primary-foreground">Cabs</span>
-              </h2>
-              <p className="mb-8 max-w-sm font-sans text-sm leading-relaxed text-primary-foreground/60">
-                Kerala&apos;s premier luxury car rental experience — self-drive,
-                chauffeur-driven tours, and show-stopping wedding fleets across
-                God&apos;s Own Country.
+              <div className="mb-4">
+                <Image
+                  src="/logo.jpeg"
+                  alt="KeralaCabs Logo"
+                  width={140}
+                  height={47}
+                  className="h-12 w-auto object-contain rounded-md"
+                />
+              </div>
+              <p className="mb-6 max-w-sm font-sans text-sm font-semibold leading-relaxed text-accent">
+                Rent A Car (Govt. Approved) • Taxi Service • Luxury Wedding Cars • Traveller & Bus
               </p>
 
               <div className="space-y-3 font-sans text-sm text-primary-foreground/70">
                 <div className="flex items-start gap-3">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                   <span>
-                    MG Road, Ernakulam, Kochi, Kerala 682011
+                    Adoor • Trivandrum • Kochi
                   </span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 shrink-0 text-accent" />
-                  <a
-                    href="tel:+919876543210"
-                    className="transition-colors hover:text-accent"
-                  >
-                    +91 98765 43210
-                  </a>
+                <div className="flex items-start gap-3">
+                  <Phone className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                  <div className="flex flex-col gap-1">
+                    <a
+                      href="tel:+919847151674"
+                      className="transition-colors hover:text-accent"
+                    >
+                      +91 98471 51674
+                    </a>
+                    <a
+                      href="tel:+917012436857"
+                      className="transition-colors hover:text-accent"
+                    >
+                      +91 70124 36857
+                    </a>
+                  </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Mail className="h-4 w-4 shrink-0 text-accent" />
@@ -86,6 +100,17 @@ export function FooterSection() {
                     className="transition-colors hover:text-accent"
                   >
                     concierge@keralacabs.com
+                  </a>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Globe className="h-4 w-4 shrink-0 text-accent" />
+                  <a
+                    href="http://www.keralacabs.in/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-colors hover:text-accent"
+                  >
+                    www.keralacabs.in
                   </a>
                 </div>
               </div>
@@ -179,7 +204,7 @@ export function FooterSection() {
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 2, type: "spring", stiffness: 200 }}
-          href="https://wa.me/919876543210?text=Hello%20KeralaCabs%2C%20I%20would%20like%20to%20enquire%20about%20a%20car%20rental."
+          href="https://wa.me/918848228458?text=Hello%20KeralaCabs%2C%20I%20would%20like%20to%20enquire%20about%20a%20car%20rental."
           target="_blank"
           rel="noopener noreferrer"
           className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 transition-all duration-300 hover:scale-110 hover:shadow-xl hover:shadow-emerald-500/40"
@@ -191,7 +216,7 @@ export function FooterSection() {
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 2.2, type: "spring", stiffness: 200 }}
-          href="tel:+919876543210"
+          href="tel:+919847151674"
           className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lg shadow-accent/30 transition-all duration-300 hover:scale-110 hover:shadow-xl hover:shadow-accent/40"
           aria-label="Call Concierge"
         >

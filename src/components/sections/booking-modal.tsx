@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { motion, AnimatePresence } from "motion/react";
 import { DayPicker, type DateRange } from "react-day-picker";
@@ -64,15 +64,56 @@ export function BookingModal({ car, isOpen, onClose }: BookingModalProps) {
     if (isValid) setStep(2);
   };
 
+  // Reset form with appropriate defaults whenever the modal opens or car changes
+  useEffect(() => {
+    if (isOpen && car) {
+      reset({
+        fullName: "",
+        email: "",
+        phone: "",
+        rentalType: car.isChauffeurOnly ? "chauffeur-driven" : "self-drive",
+      });
+      setStep(1);
+      setDateRange(undefined);
+    }
+  }, [isOpen, car, reset]);
+
   const onSubmit = (data: BookingFormValues) => {
     const dateStr = dateRange?.from
-      ? `${dateRange.from.toLocaleDateString()} – ${dateRange.to?.toLocaleDateString() ?? "TBD"}`
-      : "Dates not selected";
+      ? `${dateRange.from.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}${
+          dateRange.to
+            ? " to " + dateRange.to.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+            : ""
+        }`
+      : "Not selected";
 
-    toast.success("Enquiry Submitted!", {
-      description: `Thank you, ${data.fullName}. Booking for ${car?.name ?? "vehicle"} (${dateStr}). Our concierge will call within 30 minutes.`,
-      duration: 6000,
+    // Format a clean, premium WhatsApp booking request
+    const message = `Hello KeralaCabs, I would like to make an enquiry:
+
+*Vehicle:* ${car?.name}
+*Category:* ${car?.category ? car.category.charAt(0).toUpperCase() + car.category.slice(1) : ""}
+*Rate:* ₹${car?.pricePerDay ? car.pricePerDay.toLocaleString("en-IN") : ""}/day
+
+*Rental Preferences:*
+• Type: ${data.rentalType.charAt(0).toUpperCase() + data.rentalType.slice(1)}
+• Dates: ${dateStr}
+
+*Client Details:*
+• Name: ${data.fullName}
+• Phone: ${data.phone}
+• Email: ${data.email}`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/918848228458?text=${encodedMessage}`;
+
+    // Open WhatsApp secure chat
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+
+    toast.success("Redirecting to WhatsApp...", {
+      description: `Opening chat to complete reservation for ${car?.name ?? "vehicle"}.`,
+      duration: 5000,
     });
+
     setStep(1);
     setDateRange(undefined);
     reset();

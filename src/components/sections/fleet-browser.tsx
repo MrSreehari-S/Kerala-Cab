@@ -1,7 +1,10 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { motion } from "motion/react";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CarCard } from "@/components/car-card";
 import {
@@ -87,6 +90,24 @@ export function FleetBrowser({ cars, onBook }: FleetBrowserProps) {
             );
           })}
         </Tabs>
+
+          {/* ── View All CTA ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mt-12 flex justify-center"
+          >
+            <Button
+              nativeButton={false}
+              className="group rounded-full bg-primary px-8 py-3 font-sans text-sm font-semibold text-primary-foreground transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:shadow-xl hover:shadow-accent/20 h-auto"
+              render={<Link href="/fleet" />}
+            >
+              Explore Full Fleet
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Button>
+          </motion.div>
       </div>
     </section>
   );

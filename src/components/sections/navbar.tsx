@@ -5,9 +5,10 @@ import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const navLinks = [
-  { label: "Fleet", href: "#fleet" },
+  { label: "Fleet", href: "/fleet" },
   { label: "Why Us", href: "#why-us" },
   { label: "Testimonials", href: "#testimonials" },
   { label: "FAQ", href: "#faq" },
@@ -38,14 +39,15 @@ export function Navbar() {
     >
       <div className="section-container flex h-16 items-center justify-between md:h-20">
         {/* ── Logo ── */}
-        <Link href="/" className="flex items-center gap-2">
-          <span
-            className={`font-serif text-xl font-bold tracking-wider transition-colors duration-300 md:text-2xl ${
-              isScrolled ? "text-foreground" : "text-white"
-            }`}
-          >
-            Kerala<span className="text-accent">Cabs</span>
-          </span>
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/logo.jpeg"
+            alt="KeralaCabs Logo"
+            width={120}
+            height={40}
+            className="h-10 w-auto object-contain rounded-md"
+            priority
+          />
         </Link>
 
         {/* ── Desktop Navigation ── */}
@@ -65,7 +67,7 @@ export function Navbar() {
             nativeButton={false}
             className="rounded-full bg-accent px-5 font-sans text-sm font-semibold text-accent-foreground transition-all duration-300 hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/20"
             render={
-              <a href="tel:+919876543210" />
+              <a href="tel:+919847151674" />
             }
           >
             <Phone className="mr-1.5 h-3.5 w-3.5" />
@@ -113,7 +115,7 @@ export function Navbar() {
                   nativeButton={false}
                   className="w-full rounded-full bg-accent font-sans text-sm font-semibold text-accent-foreground"
                   render={
-                    <a href="tel:+919876543210" />
+                    <a href="tel:+919847151674" />
                   }
                 >
                   <Phone className="mr-1.5 h-3.5 w-3.5" />
