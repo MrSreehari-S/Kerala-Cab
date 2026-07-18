@@ -3,11 +3,9 @@ import { MongoClient, type Db } from "mongodb";
 // ── Connection cache ──────────────────────────────────────────────────────────
 // We cache the client promise on the global object so hot-reload in dev
 // doesn't open new connections every time a module re-evaluates.
-// The module-level guard is intentionally ABSENT here: if MONGODB_URI is
-// missing we want getDb() to throw lazily (inside the caller's try/catch)
-// rather than crashing every page at import time.
 
 let clientPromise: Promise<MongoClient> | null = null;
+let indexesEnsured = false;
 
 declare global {
   // eslint-disable-next-line no-var
@@ -40,16 +38,59 @@ function getClientPromise(): Promise<MongoClient> {
   return clientPromise;
 }
 
+/**
+ * Idempotent index initialization for the `cars` collection.
+ * Creates ESR-compliant indexes to eliminate COLLSCAN and in-memory SORT stages.
+ */
+export async function ensureIndexes(db: Db): Promise<void> {
+  if (indexesEnsured) return;
+  try {
+    const cars = db.collection("cars");
+
+    const createSafely = async (
+      keyPattern: Record<string, 1 | -1>,
+      options?: { unique?: boolean }
+    ) => {
+      try {
+        await cars.createIndex(keyPattern, options);
+      } catch (err: unknown) {
+        // If an index with matching keys already exists under a slightly different spec, ignore conflict
+        if (
+          typeof err === "object" &&
+          err !== null &&
+          "code" in err &&
+          err.code === 86
+        ) {
+          return;
+        }
+        throw err;
+      }
+    };
+
+    await Promise.all([
+      createSafely({ createdAt: -1 }),
+      createSafely({ slug: 1 }, { unique: true }),
+      createSafely({ category: 1, createdAt: -1 }),
+    ]);
+
+    indexesEnsured = true;
+  } catch (err) {
+    console.error("[mongodb] Index initialization error:", err);
+  }
+}
+
 export { getClientPromise as clientPromise };
 
 /**
- * Returns the connected Db instance.
- *
- * Throws if MONGODB_URI is not configured — callers should wrap this in a
- * try/catch and handle the failure gracefully (e.g. return { dbError: true }).
+ * Returns the connected Db instance and ensures indexes exist.
  */
 export async function getDb(): Promise<Db> {
   const dbName = process.env.MONGODB_DB || "keralacabs";
   const client = await getClientPromise();
-  return client.db(dbName);
+  const db = client.db(dbName);
+
+  // Asynchronously ensure indexes exist without blocking caller
+  ensureIndexes(db).catch(() => {});
+
+  return db;
 }
