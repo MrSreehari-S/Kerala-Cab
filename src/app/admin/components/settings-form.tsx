@@ -124,7 +124,7 @@ export function SettingsForm({ onLogout }: SettingsFormProps) {
 
         {/* Current Password Verification */}
         <div className="space-y-1.5">
-          <label className="font-sans text-xs font-medium uppercase tracking-wider text-accent font-semibold">
+          <label className="font-sans text-xs uppercase tracking-wider text-accent font-semibold">
             Verify Current Password *
           </label>
           <Input
