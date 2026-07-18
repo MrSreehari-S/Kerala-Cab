@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import { Toaster } from "sonner";
 import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
 import { Navbar } from "@/components/sections/navbar";
+import { HeroLanding } from "@/components/hero-landing";
 import { HeroSection } from "@/components/sections/hero";
 import { FleetBrowser } from "@/components/sections/fleet-browser";
 import { WhyUsSection } from "@/components/sections/why-us";
@@ -40,6 +41,7 @@ export function HomeClient({ cars }: HomeClientProps) {
       <Navbar />
 
       <main className="flex-1">
+        {/* <HeroLanding /> */}
         <HeroSection onExploreFleet={handleExploreFleet} />
 
         <div ref={fleetRef}>
