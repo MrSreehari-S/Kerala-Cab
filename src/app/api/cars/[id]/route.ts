@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/mongodb";
 import { verifySession } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 /** PUT /api/cars/[id] — admin only, update a car by _id */
 export async function PUT(
@@ -49,6 +49,7 @@ export async function PUT(
       return NextResponse.json({ error: "Car not found" }, { status: 404 });
     }
 
+    revalidateTag("cars", "max");
     revalidatePath("/");
     revalidatePath("/fleet");
 
@@ -88,6 +89,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Car not found" }, { status: 404 });
     }
 
+    revalidateTag("cars", "max");
     revalidatePath("/");
     revalidatePath("/fleet");
 

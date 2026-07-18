@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { getDb } from "@/lib/mongodb";
-import type { Car } from "@/data/cars";
+import { getCarsCached } from "@/lib/data/cars";
 import { FleetPageClient } from "./fleet-client";
 
 export const metadata: Metadata = {
@@ -9,45 +8,11 @@ export const metadata: Metadata = {
     "Explore our complete collection of luxury sedans, powerful SUVs, elegant wedding cars, and premium self-drive vehicles available across Kerala.",
 };
 
-export const dynamic = "force-dynamic";
-
-interface FetchResult {
-  cars: Car[];
-  dbError: boolean;
-}
-
-async function getCars(): Promise<FetchResult> {
-  try {
-    const db = await getDb();
-    const docs = await db
-      .collection("cars")
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
-
-    const cars = docs.map((car) => ({
-      id: car._id.toString(),
-      name: car.name,
-      slug: car.slug,
-      category: car.category,
-      tagline: car.tagline,
-      pricePerDay: car.pricePerDay,
-      transmission: car.transmission,
-      fuelType: car.fuelType,
-      seats: car.seats,
-      images: car.images || [],
-      isChauffeurOnly: car.isChauffeurOnly,
-      features: car.features,
-    })) as Car[];
-
-    return { cars, dbError: false };
-  } catch (error) {
-    console.error("[fleet] Failed to fetch cars from MongoDB:", error);
-    return { cars: [], dbError: true };
-  }
-}
+// Incremental Static Regeneration (ISR): Edge-cached for 1 hour
+// Admin mutations purge this cache instantly via revalidateTag("cars")
+export const revalidate = 3600;
 
 export default async function FleetPage() {
-  const { cars, dbError } = await getCars();
+  const { cars, dbError } = await getCarsCached();
   return <FleetPageClient cars={cars} dbError={dbError} />;
 }

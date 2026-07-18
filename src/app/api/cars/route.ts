@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/mongodb";
 import { verifySession } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 /** GET /api/cars — public, returns all cars */
 export async function GET() {
@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
     const result = await db.collection("cars").insertOne(doc);
     const insertedId = result.insertedId.toString();
 
+    revalidateTag("cars", "max");
     revalidatePath("/");
     revalidatePath("/fleet");
 
