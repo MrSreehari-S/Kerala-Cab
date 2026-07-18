@@ -12,6 +12,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  DatabaseZap,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -49,9 +50,10 @@ const sortOptions: { value: SortOption; label: string }[] = [
 
 interface FleetPageClientProps {
   cars: Car[];
+  dbError?: boolean;
 }
 
-export function FleetPageClient({ cars }: FleetPageClientProps) {
+export function FleetPageClient({ cars, dbError = false }: FleetPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -349,7 +351,33 @@ export function FleetPageClient({ cars }: FleetPageClientProps) {
         {/* ── Car Grid ── */}
         <section ref={gridRef} className="section-container py-12">
           <AnimatePresence mode="wait">
-            {paginatedCars.length > 0 ? (
+            {dbError ? (
+              <motion.div
+                key="db-error"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col items-center justify-center py-24 text-center"
+              >
+                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
+                  <DatabaseZap className="h-8 w-8 text-amber-400" />
+                </div>
+                <h3 className="mb-2 font-serif text-2xl font-semibold">
+                  Fleet temporarily unavailable
+                </h3>
+                <p className="mb-6 max-w-md font-sans text-sm text-muted-foreground">
+                  We&apos;re having trouble connecting to our database. Please
+                  refresh the page or try again in a moment.
+                </p>
+                <Button
+                  onClick={() => window.location.reload()}
+                  className="rounded-full bg-accent px-6 font-sans text-sm font-semibold text-accent-foreground"
+                >
+                  Retry
+                </Button>
+              </motion.div>
+            ) : paginatedCars.length > 0 ? (
               <div className="space-y-16">
                 <motion.div
                   key={`${activeCategory}-${searchQuery}-${sortBy}-${currentPage}`}

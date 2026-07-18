@@ -4,16 +4,21 @@ import { HomeClient } from "./home-client";
 
 export const dynamic = "force-dynamic";
 
-async function getCars(): Promise<Car[]> {
+interface FetchResult {
+  cars: Car[];
+  dbError: boolean;
+}
+
+async function getCars(): Promise<FetchResult> {
   try {
     const db = await getDb();
-    const cars = await db
+    const docs = await db
       .collection("cars")
       .find({})
       .sort({ createdAt: -1 })
       .toArray();
 
-    return cars.map((car) => ({
+    const cars = docs.map((car) => ({
       id: car._id.toString(),
       name: car.name,
       slug: car.slug,
@@ -27,14 +32,15 @@ async function getCars(): Promise<Car[]> {
       isChauffeurOnly: car.isChauffeurOnly,
       features: car.features,
     })) as Car[];
+
+    return { cars, dbError: false };
   } catch (error) {
-    console.error("Failed to fetch cars from MongoDB:", error);
-    const { cars } = await import("@/data/cars");
-    return cars;
+    console.error("[page] Failed to fetch cars from MongoDB:", error);
+    return { cars: [], dbError: true };
   }
 }
 
 export default async function Home() {
-  const cars = await getCars();
-  return <HomeClient cars={cars} />;
+  const { cars, dbError } = await getCars();
+  return <HomeClient cars={cars} dbError={dbError} />;
 }
