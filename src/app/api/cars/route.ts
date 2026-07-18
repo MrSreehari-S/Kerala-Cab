@@ -13,9 +13,10 @@ export async function GET() {
       .sort({ createdAt: -1 })
       .toArray();
 
-    // Serialize _id to string for JSON
+    // Standardize _id to string as the primary `id` field for JSON response
     const serialized = cars.map((car) => ({
       ...car,
+      id: car._id.toString(),
       _id: car._id.toString(),
     }));
 
@@ -41,20 +42,8 @@ export async function POST(request: NextRequest) {
 
     const db = await getDb();
 
-    // Auto-generate an id (max current id + 1)
-    const lastCar = await db
-      .collection("cars")
-      .find({})
-      .sort({ id: -1 })
-      .limit(1)
-      .toArray();
-
-    const nextId = lastCar.length > 0
-      ? String(Number(lastCar[0].id || "0") + 1)
-      : "1";
-
+    // Standardized document without legacy `id` field (MongoDB auto-generates _id)
     const doc = {
-      id: nextId,
       name: body.name,
       slug: body.slug,
       category: body.category,
@@ -71,12 +60,13 @@ export async function POST(request: NextRequest) {
     };
 
     const result = await db.collection("cars").insertOne(doc);
+    const insertedId = result.insertedId.toString();
 
     revalidatePath("/");
     revalidatePath("/fleet");
 
     return NextResponse.json(
-      { ...doc, _id: result.insertedId.toString() },
+      { ...doc, id: insertedId, _id: insertedId },
       { status: 201 }
     );
   } catch (error) {

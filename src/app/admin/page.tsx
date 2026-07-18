@@ -103,7 +103,7 @@ export default function AdminDashboard() {
   const handleSave = async (data: Partial<Car>) => {
     const isEditing = !!editingCar;
     const url = isEditing
-      ? `/api/cars/${editingCar._id || editingCar.id}`
+      ? `/api/cars/${editingCar.id}`
       : "/api/cars";
     const method = isEditing ? "PUT" : "POST";
 
@@ -149,17 +149,12 @@ export default function AdminDashboard() {
 
     // Optimistic removal
     const previousCars = [...cars];
-    setCars((prev) =>
-      prev.filter(
-        (c) => c.id !== deletingCar.id && c._id !== deletingCar._id
-      )
-    );
+    setCars((prev) => prev.filter((c) => c.id !== deletingCar.id));
 
     try {
-      const res = await fetch(
-        `/api/cars/${deletingCar._id || deletingCar.id}`,
-        { method: "DELETE" }
-      );
+      const res = await fetch(`/api/cars/${deletingCar.id}`, {
+        method: "DELETE",
+      });
 
       if (!res.ok) throw new Error("Delete failed");
 
