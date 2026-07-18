@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Lock, Mail, Loader2 } from "lucide-react";
+import { Lock, Mail, Loader2, ShieldAlert, Clock } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -15,33 +15,80 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  // Rate-limit countdown state
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null); // ms timestamp
+  const [countdown, setCountdown] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+  const isLocked = lockedUntil !== null && Date.now() < lockedUntil;
 
-      const data = await res.json();
+  // Run the countdown ticker whenever the form is locked
+  useEffect(() => {
+    if (!lockedUntil) return;
 
-      if (!res.ok) {
-        setError(data.error || "Login failed");
-        return;
+    const tick = () => {
+      const remaining = Math.max(0, Math.ceil((lockedUntil - Date.now()) / 1000));
+      setCountdown(remaining);
+      if (remaining <= 0) {
+        setLockedUntil(null);
+        setError("");
+        if (timerRef.current) clearInterval(timerRef.current);
       }
+    };
 
-      router.push("/admin");
-      router.refresh();
-    } catch {
-      setError("Network error. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    tick(); // immediate first tick
+    timerRef.current = setInterval(tick, 1000);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [lockedUntil]);
+
+  const formatCountdown = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
   };
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (isLocked) return;
+
+      setError("");
+      setLoading(true);
+
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+
+        if (res.status === 429) {
+          // Rate-limited — lock the form for retryAfter seconds
+          const waitSecs: number = data.retryAfter ?? 60;
+          setLockedUntil(Date.now() + waitSecs * 1000);
+          setError(data.error ?? "Too many attempts. Please wait.");
+          return;
+        }
+
+        if (!res.ok) {
+          setError(data.error || "Login failed. Check your credentials.");
+          return;
+        }
+
+        router.push("/admin");
+        router.refresh();
+      } catch {
+        setError("Network error. Please check your connection.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [email, password, isLocked, router]
+  );
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
@@ -92,6 +139,7 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
                   className="pl-10 font-sans"
+                  disabled={isLocked || loading}
                   required
                 />
               </div>
@@ -116,32 +164,64 @@ export default function AdminLoginPage() {
                     setPassword((e.target as HTMLInputElement).value)
                   }
                   className="pl-10 font-sans"
+                  disabled={isLocked || loading}
                   required
                 />
               </div>
             </div>
 
-            {/* Error message */}
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 font-sans text-sm text-destructive"
-              >
-                {error}
-              </motion.div>
-            )}
+            {/* Error / Rate-limit banner */}
+            <AnimatePresence mode="wait">
+              {isLocked ? (
+                <motion.div
+                  key="locked"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3"
+                >
+                  <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+                  <div className="flex-1 font-sans text-sm">
+                    <p className="font-semibold text-amber-300">
+                      Account temporarily locked
+                    </p>
+                    <p className="mt-0.5 text-xs text-amber-200/70">
+                      Too many failed attempts. Try again in{" "}
+                      <span className="inline-flex items-center gap-1 font-mono font-bold text-amber-300">
+                        <Clock className="h-3 w-3" />
+                        {formatCountdown(countdown)}
+                      </span>
+                    </p>
+                  </div>
+                </motion.div>
+              ) : error ? (
+                <motion.div
+                  key="error"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 font-sans text-sm text-destructive"
+                >
+                  {error}
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
 
             {/* Submit */}
             <Button
               type="submit"
-              disabled={loading}
-              className="w-full rounded-full bg-accent py-3 font-sans text-sm font-semibold text-accent-foreground transition-all duration-300 hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/20 h-auto"
+              disabled={loading || isLocked}
+              className="w-full rounded-full bg-accent py-3 font-sans text-sm font-semibold text-accent-foreground transition-all duration-300 hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/20 h-auto disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Signing in…
+                </>
+              ) : isLocked ? (
+                <>
+                  <Clock className="mr-2 h-4 w-4" />
+                  Locked — {formatCountdown(countdown)}
                 </>
               ) : (
                 "Sign In"

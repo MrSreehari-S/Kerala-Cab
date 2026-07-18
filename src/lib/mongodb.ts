@@ -1,38 +1,55 @@
 import { MongoClient, type Db } from "mongodb";
 
-if (!process.env.MONGODB_URI) {
-  throw new Error("Please add MONGODB_URI to your .env.local file");
-}
-
-const uri = process.env.MONGODB_URI;
-const dbName = process.env.MONGODB_DB || "keralacabs";
-
-const options = {};
-
-// Cache the client promise on the global object so hot-reload in dev
+// ── Connection cache ──────────────────────────────────────────────────────────
+// We cache the client promise on the global object so hot-reload in dev
 // doesn't open new connections every time a module re-evaluates.
-let clientPromise: Promise<MongoClient>;
+// The module-level guard is intentionally ABSENT here: if MONGODB_URI is
+// missing we want getDb() to throw lazily (inside the caller's try/catch)
+// rather than crashing every page at import time.
+
+let clientPromise: Promise<MongoClient> | null = null;
 
 declare global {
   // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-if (process.env.NODE_ENV === "development") {
-  if (!global._mongoClientPromise) {
-    const client = new MongoClient(uri, options);
-    global._mongoClientPromise = client.connect();
+function getClientPromise(): Promise<MongoClient> {
+  const uri = process.env.MONGODB_URI;
+
+  if (!uri) {
+    throw new Error(
+      "MONGODB_URI is not set. Add it to .env.local or your deployment environment."
+    );
   }
-  clientPromise = global._mongoClientPromise;
-} else {
-  const client = new MongoClient(uri, options);
-  clientPromise = client.connect();
+
+  if (process.env.NODE_ENV === "development") {
+    // In dev, reuse the global promise across hot-reloads.
+    if (!global._mongoClientPromise) {
+      const client = new MongoClient(uri);
+      global._mongoClientPromise = client.connect();
+    }
+    return global._mongoClientPromise;
+  }
+
+  // In production, create a new promise per module instance.
+  if (!clientPromise) {
+    const client = new MongoClient(uri);
+    clientPromise = client.connect();
+  }
+  return clientPromise;
 }
 
-export { clientPromise };
+export { getClientPromise as clientPromise };
 
-/** Convenience: get the connected Db instance */
+/**
+ * Returns the connected Db instance.
+ *
+ * Throws if MONGODB_URI is not configured — callers should wrap this in a
+ * try/catch and handle the failure gracefully (e.g. return { dbError: true }).
+ */
 export async function getDb(): Promise<Db> {
-  const client = await clientPromise;
+  const dbName = process.env.MONGODB_DB || "keralacabs";
+  const client = await getClientPromise();
   return client.db(dbName);
 }
