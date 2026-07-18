@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDb, ensureIndexes } from "@/lib/mongodb";
+import { getDb, ensureIndexes, ensureSchemaValidation } from "@/lib/mongodb";
 import { verifySession } from "@/lib/auth";
 
 /**
@@ -7,7 +7,7 @@ import { verifySession } from "@/lib/auth";
  */
 export async function GET() {
   return NextResponse.json({
-    message: "Migration endpoint active. Use HTTP POST with an authenticated admin session to run database migration & index verification.",
+    message: "Migration endpoint active. Use HTTP POST with an authenticated admin session to run database migration, index verification, and schema validation.",
     methodsAllowed: ["POST"],
   });
 }
@@ -16,7 +16,8 @@ export async function GET() {
  * POST /api/migrate — admin only.
  * 1. Clean up legacy `id` fields from existing car documents ($unset: { id: "" }).
  * 2. Idempotently create ESR-compliant compound indexes on the `cars` collection.
- * 3. Return active index definitions for verification.
+ * 3. Enforce BSON $jsonSchema validation rules via `collMod`.
+ * 4. Return active index and schema validation status.
  */
 export async function POST(request: NextRequest) {
   const session = await verifySession();
@@ -34,8 +35,9 @@ export async function POST(request: NextRequest) {
       { $unset: { id: "" } }
     );
 
-    // 2. Ensure indexes
+    // 2. Ensure indexes & schema validation
     await ensureIndexes(db);
+    await ensureSchemaValidation(db);
 
     // 3. Retrieve list of active indexes for confirmation
     const activeIndexes = await carsCollection.indexes();
@@ -43,12 +45,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       cleanedCount: unsetResult.modifiedCount,
+      schemaValidationStatus: "Strict $jsonSchema validation active",
       activeIndexes: activeIndexes.map((idx) => ({
         name: idx.name,
         key: idx.key,
         unique: idx.unique || false,
       })),
-      message: `Database migration complete. Cleaned ${unsetResult.modifiedCount} legacy fields and verified ${activeIndexes.length} indexes.`,
+      message: `Database migration complete. Cleaned ${unsetResult.modifiedCount} legacy fields, verified ${activeIndexes.length} indexes, and enforced strict schema validation.`,
     });
   } catch (error) {
     console.error("Migration error:", error);
