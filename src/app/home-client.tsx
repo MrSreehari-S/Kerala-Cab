@@ -53,7 +53,7 @@ export function HomeClient({ cars, dbError = false }: HomeClientProps) {
       )}
 
       <main className="flex-1">
-        {/* <HeroLanding /> */}
+        <HeroLanding />
         <HeroSection onExploreFleet={handleExploreFleet} />
 
         <div ref={fleetRef}>
