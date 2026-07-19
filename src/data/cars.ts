@@ -23,6 +23,12 @@ export interface Car {
   features?: string[];
 }
 
+/**
+ * Extended Car type that carries the raw MongoDB `_id` string field.
+ * Used exclusively in the admin dashboard where both `id` and `_id` may be present.
+ */
+export type DbCar = Car & { _id?: string };
+
 /** Helper: get cars filtered by category (works on any in-memory Car[]) */
 export function getCarsByCategory(cars: Car[], category: CarCategory): Car[] {
   return cars.filter((car) => car.category === category);

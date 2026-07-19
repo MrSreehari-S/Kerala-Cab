@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CarFormDialog } from "./car-form-dialog";
 import { DeleteDialog } from "./delete-dialog";
-import { FleetTable, type DbCar } from "./fleet-table";
+import { FleetTable } from "./fleet-table";
 import { SettingsForm } from "./settings-form";
 import { LayoutDashboard, LogOut, CarIcon, Settings } from "lucide-react";
-import type { Car } from "@/data/cars";
+import type { Car, DbCar } from "@/data/cars";
 
 interface AdminDashboardClientProps {
   initialCars: DbCar[];

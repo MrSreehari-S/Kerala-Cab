@@ -9,8 +9,10 @@ const JWT_SECRET = new TextEncoder().encode(
 
 /**
  * Protect /admin routes (except the login page and auth API endpoints).
+ * Next.js 16: file renamed from middleware.ts → proxy.ts
+ *             exported function renamed from `middleware` → `proxy`
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow login page & auth API routes through

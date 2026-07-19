@@ -23,9 +23,7 @@ import {
   ArrowUpDown,
   CarIcon,
 } from "lucide-react";
-import type { Car } from "@/data/cars";
-
-export type DbCar = Car & { _id?: string };
+import type { Car, DbCar } from "@/data/cars";
 
 const PLACEHOLDER_IMG =
   "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400&q=60";

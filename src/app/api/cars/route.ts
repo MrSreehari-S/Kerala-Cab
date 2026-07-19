@@ -2,32 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/mongodb";
 import { verifySession } from "@/lib/auth";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { getCarsCached } from "@/lib/data/cars";
 
-/** GET /api/cars — public, returns all cars */
+// Prevent Next.js from statically caching this route at the HTTP layer.
+// The intentional data-layer cache lives inside getCarsCached (unstable_cache).
+export const dynamic = "force-dynamic";
+
+/** GET /api/cars — public, returns all cars (data-layer ISR cache via unstable_cache) */
 export async function GET() {
-  try {
-    const db = await getDb();
-    const cars = await db
-      .collection("cars")
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
-
-    // Standardize _id to string as the primary `id` field for JSON response
-    const serialized = cars.map((car) => ({
-      ...car,
-      id: car._id.toString(),
-      _id: car._id.toString(),
-    }));
-
-    return NextResponse.json(serialized);
-  } catch (error) {
-    console.error("GET /api/cars error:", error);
+  const { cars, dbError } = await getCarsCached();
+  if (dbError) {
     return NextResponse.json(
       { error: "Failed to fetch cars" },
       { status: 500 }
     );
   }
+  return NextResponse.json(cars);
 }
 
 /** POST /api/cars — admin only, create a new car */
