@@ -375,33 +375,30 @@ function BeatOverlay({
         left: isLeft ? 0 : "auto",
         right: isLeft ? "auto" : 0,
         width: "100%",
-        maxWidth: "30vw",
         height: "100vh",
         pointerEvents: "none",
         zIndex: 15,
       }}
-      className="px-6 md:px-14"
+      className="max-w-[85vw] sm:max-w-[70vw] md:max-w-[30vw] px-4 sm:px-6 md:px-14"
     >
       {/* ── Directional legibility scrim ── */}
       <div
         aria-hidden
-        className="absolute inset-y-0 pointer-events-none h-screen w-full"
+        className="absolute inset-y-0 pointer-events-none h-screen w-full md:w-[120%]"
         style={{
           left: isLeft ? 0 : "auto",
           right: isLeft ? "auto" : 0,
-          width: "100%",
           background: isLeft
-            ? "linear-gradient(90deg, rgba(5,5,5,0.72) 0%, rgba(5,5,5,0.42) 55%, rgba(5,5,5,0) 100%)"
-            : "linear-gradient(270deg, rgba(5,5,5,0.72) 0%, rgba(5,5,5,0.42) 55%, rgba(5,5,5,0) 100%)",
+            ? "linear-gradient(90deg, rgba(5,5,5,0.85) 0%, rgba(5,5,5,0.55) 60%, rgba(5,5,5,0) 100%)"
+            : "linear-gradient(270deg, rgba(5,5,5,0.85) 0%, rgba(5,5,5,0.55) 60%, rgba(5,5,5,0) 100%)",
         }}
       />
 
       {/* ── Scrolling content ── */}
       <motion.div
         style={{ y: cardY }}
-        className="relative z-10 w-full py-8 flex flex-col gap-5"
+        className="relative z-10 w-full py-8 flex flex-col gap-3 sm:gap-4 md:gap-5"
       >
-
         {/* Headline */}
         <h2 className="font-serif text-3xl sm:text-4xl md:text-[3.4rem] font-bold leading-[1.05] tracking-tight text-white whitespace-pre-line">
           {beat.title}{" "}
@@ -712,12 +709,12 @@ function InitialHeroTitle({
         {/* ── CTAs matching hero.tsx ── */}
         <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 pointer-events-auto">
           <Link href="/fleet">
-          <Button
-            className="group rounded-full bg-[#f4c066] px-8 py-3 font-sans text-sm font-semibold text-black transition-all duration-300 hover:bg-white hover:text-black hover:shadow-xl hover:shadow-[#f4c066]/20 h-auto"
-          >
-            Browse Our Fleet
-            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </Button>
+            <Button
+              className="group rounded-full bg-[#f4c066] px-8 py-3 font-sans text-sm font-semibold text-black transition-all duration-300 hover:bg-white hover:text-black hover:shadow-xl hover:shadow-[#f4c066]/20 h-auto"
+            >
+              Browse Our Fleet
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Button>
           </Link>
 
           <Button
