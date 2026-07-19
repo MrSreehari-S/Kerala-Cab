@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { Toaster } from "sonner";
 import { AlertTriangle } from "lucide-react";
 import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
 import { Navbar } from "@/components/sections/navbar";
@@ -74,14 +73,6 @@ export function HomeClient({ cars, dbError = false }: HomeClientProps) {
         onClose={handleCloseBooking}
       />
 
-      {/* ── Toast Container ── */}
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          className: "font-sans",
-        }}
-        richColors
-      />
     </SmoothScrollProvider>
   );
 }

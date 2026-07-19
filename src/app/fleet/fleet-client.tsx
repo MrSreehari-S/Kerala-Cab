@@ -28,7 +28,6 @@ import { CarCard } from "@/components/car-card";
 import { Navbar } from "@/components/sections/navbar";
 import { FooterSection } from "@/components/sections/footer";
 import { BookingModal } from "@/components/sections/booking-modal";
-import { Toaster } from "sonner";
 import type { Car, CarCategory } from "@/data/cars";
 
 const categories: { value: string; label: string }[] = [
@@ -475,11 +474,6 @@ export function FleetPageClient({ cars, dbError = false }: FleetPageClientProps)
         onClose={handleCloseBooking}
       />
 
-      <Toaster
-        position="top-right"
-        toastOptions={{ className: "font-sans" }}
-        richColors
-      />
     </>
   );
 }
