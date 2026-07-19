@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/mongodb";
 import { verifySession } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
-/** PUT /api/cars/[id] — admin only, update a car */
+/** PUT /api/cars/[id] — admin only, update a car by _id */
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -16,6 +16,11 @@ export async function PUT(
 
   try {
     const { id } = await params;
+
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid car ID" }, { status: 400 });
+    }
+
     const body = await request.json();
     const db = await getDb();
 
@@ -34,13 +39,7 @@ export async function PUT(
       updatedAt: new Date(),
     };
 
-    // Try matching by MongoDB _id first, fall back to custom id field
-    let filter: Record<string, unknown>;
-    if (ObjectId.isValid(id) && id.length === 24) {
-      filter = { _id: new ObjectId(id) };
-    } else {
-      filter = { id: id };
-    }
+    const filter = { _id: new ObjectId(id) };
 
     const result = await db
       .collection("cars")
@@ -50,10 +49,11 @@ export async function PUT(
       return NextResponse.json({ error: "Car not found" }, { status: 404 });
     }
 
+    revalidateTag("cars", "max");
     revalidatePath("/");
     revalidatePath("/fleet");
 
-    return NextResponse.json({ success: true, ...updateDoc });
+    return NextResponse.json({ success: true, id, _id: id, ...updateDoc });
   } catch (error) {
     console.error("PUT /api/cars/[id] error:", error);
     return NextResponse.json(
@@ -63,7 +63,7 @@ export async function PUT(
   }
 }
 
-/** DELETE /api/cars/[id] — admin only, delete a car */
+/** DELETE /api/cars/[id] — admin only, delete a car by _id */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -75,14 +75,13 @@ export async function DELETE(
 
   try {
     const { id } = await params;
-    const db = await getDb();
 
-    let filter: Record<string, unknown>;
-    if (ObjectId.isValid(id) && id.length === 24) {
-      filter = { _id: new ObjectId(id) };
-    } else {
-      filter = { id: id };
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid car ID" }, { status: 400 });
     }
+
+    const db = await getDb();
+    const filter = { _id: new ObjectId(id) };
 
     const result = await db.collection("cars").deleteOne(filter);
 
@@ -90,6 +89,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Car not found" }, { status: 404 });
     }
 
+    revalidateTag("cars", "max");
     revalidatePath("/");
     revalidatePath("/fleet");
 

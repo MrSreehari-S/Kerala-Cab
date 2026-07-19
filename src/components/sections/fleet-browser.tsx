@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, DatabaseZap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CarCard } from "@/components/car-card";
@@ -20,6 +20,7 @@ import type { Car, CarCategory } from "@/data/cars";
 interface FleetBrowserProps {
   cars: Car[];
   onBook: (car: Car) => void;
+  dbError?: boolean;
 }
 
 const categories: { value: string; label: string }[] = [
@@ -30,7 +31,7 @@ const categories: { value: string; label: string }[] = [
   { value: "wedding", label: "Wedding" },
 ];
 
-export function FleetBrowser({ cars, onBook }: FleetBrowserProps) {
+export function FleetBrowser({ cars, onBook, dbError = false }: FleetBrowserProps) {
   return (
     <section id="fleet" className="relative py-24 bg-muted/30">
       {/* Subtle top gradient divider */}
@@ -61,35 +62,76 @@ export function FleetBrowser({ cars, onBook }: FleetBrowserProps) {
           </p>
         </motion.div>
 
-        {/* ── Tabs ── */}
-        <Tabs defaultValue="all" className="w-full">
-          <div className="mb-10 flex justify-center">
-            <TabsList className="glass rounded-full p-1.5 h-auto">
-              {categories.map((cat) => (
-                <TabsTrigger
-                  key={cat.value}
-                  value={cat.value}
-                  className="rounded-full px-5 py-2 font-sans text-xs font-semibold capitalize transition-all duration-300 data-active:bg-primary data-active:text-primary-foreground sm:text-sm sm:px-6"
-                >
-                  {cat.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
+        {/* ── DB Error / Empty State ── */}
+        {dbError ? (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-center justify-center py-24 text-center"
+          >
+            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
+              <DatabaseZap className="h-8 w-8 text-amber-400" />
+            </div>
+            <h3 className="mb-2 font-serif text-2xl font-semibold">Fleet temporarily unavailable</h3>
+            <p className="mb-6 max-w-md font-sans text-sm text-muted-foreground">
+              We&apos;re having trouble connecting to our database right now.
+              Please refresh the page or check back shortly.
+            </p>
+            <Button
+              onClick={() => window.location.reload()}
+              className="rounded-full bg-accent px-6 font-sans text-sm font-semibold text-accent-foreground"
+            >
+              Retry
+            </Button>
+          </motion.div>
+        ) : cars.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-center justify-center py-24 text-center"
+          >
+            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+              <DatabaseZap className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="mb-2 font-serif text-2xl font-semibold">No vehicles listed yet</h3>
+            <p className="mb-6 max-w-md font-sans text-sm text-muted-foreground">
+              Our fleet is being curated. Please check back soon or contact us
+              directly to book your ride.
+            </p>
+          </motion.div>
+        ) : (
+          /* ── Tabs ── */
+          <Tabs defaultValue="all" className="w-full">
+            <div className="mb-10 flex justify-center">
+              <TabsList className="glass rounded-full p-1.5 h-auto">
+                {categories.map((cat) => (
+                  <TabsTrigger
+                    key={cat.value}
+                    value={cat.value}
+                    className="rounded-full px-5 py-2 font-sans text-xs font-semibold capitalize transition-all duration-300 data-active:bg-primary data-active:text-primary-foreground sm:text-sm sm:px-6"
+                  >
+                    {cat.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
 
-          {categories.map((cat) => {
-            const filtered =
-              cat.value === "all"
-                ? cars
-                : cars.filter((c) => c.category === (cat.value as CarCategory));
+            {categories.map((cat) => {
+              const filtered =
+                cat.value === "all"
+                  ? cars
+                  : cars.filter((c) => c.category === (cat.value as CarCategory));
 
-            return (
-              <TabsContent key={cat.value} value={cat.value}>
-                <FleetCarousel cars={filtered} onBook={onBook} />
-              </TabsContent>
-            );
-          })}
-        </Tabs>
+              return (
+                <TabsContent key={cat.value} value={cat.value}>
+                  <FleetCarousel cars={filtered} onBook={onBook} />
+                </TabsContent>
+              );
+            })}
+          </Tabs>
+        )}
 
           {/* ── View All CTA ── */}
           <motion.div

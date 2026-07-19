@@ -1,40 +1,11 @@
-import { getDb } from "@/lib/mongodb";
-import type { Car } from "@/data/cars";
+import { getCarsCached } from "@/lib/data/cars";
 import { HomeClient } from "./home-client";
 
-export const dynamic = "force-dynamic";
-
-async function getCars(): Promise<Car[]> {
-  try {
-    const db = await getDb();
-    const cars = await db
-      .collection("cars")
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
-
-    return cars.map((car) => ({
-      id: car._id.toString(),
-      name: car.name,
-      slug: car.slug,
-      category: car.category,
-      tagline: car.tagline,
-      pricePerDay: car.pricePerDay,
-      transmission: car.transmission,
-      fuelType: car.fuelType,
-      seats: car.seats,
-      images: car.images || [],
-      isChauffeurOnly: car.isChauffeurOnly,
-      features: car.features,
-    })) as Car[];
-  } catch (error) {
-    console.error("Failed to fetch cars from MongoDB:", error);
-    const { cars } = await import("@/data/cars");
-    return cars;
-  }
-}
+// Incremental Static Regeneration (ISR): Edge-cached for 1 hour
+// Admin mutations purge this cache instantly via revalidateTag("cars")
+export const revalidate = 3600;
 
 export default async function Home() {
-  const cars = await getCars();
-  return <HomeClient cars={cars} />;
+  const { cars, dbError } = await getCarsCached();
+  return <HomeClient cars={cars} dbError={dbError} />;
 }

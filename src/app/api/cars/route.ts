@@ -1,32 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/mongodb";
 import { verifySession } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { getCarsCached } from "@/lib/data/cars";
 
-/** GET /api/cars — public, returns all cars */
+// Prevent Next.js from statically caching this route at the HTTP layer.
+// The intentional data-layer cache lives inside getCarsCached (unstable_cache).
+export const dynamic = "force-dynamic";
+
+/** GET /api/cars — public, returns all cars (data-layer ISR cache via unstable_cache) */
 export async function GET() {
-  try {
-    const db = await getDb();
-    const cars = await db
-      .collection("cars")
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
-
-    // Serialize _id to string for JSON
-    const serialized = cars.map((car) => ({
-      ...car,
-      _id: car._id.toString(),
-    }));
-
-    return NextResponse.json(serialized);
-  } catch (error) {
-    console.error("GET /api/cars error:", error);
+  const { cars, dbError } = await getCarsCached();
+  if (dbError) {
     return NextResponse.json(
       { error: "Failed to fetch cars" },
       { status: 500 }
     );
   }
+  return NextResponse.json(cars);
 }
 
 /** POST /api/cars — admin only, create a new car */
@@ -41,20 +32,8 @@ export async function POST(request: NextRequest) {
 
     const db = await getDb();
 
-    // Auto-generate an id (max current id + 1)
-    const lastCar = await db
-      .collection("cars")
-      .find({})
-      .sort({ id: -1 })
-      .limit(1)
-      .toArray();
-
-    const nextId = lastCar.length > 0
-      ? String(Number(lastCar[0].id || "0") + 1)
-      : "1";
-
+    // Standardized document without legacy `id` field (MongoDB auto-generates _id)
     const doc = {
-      id: nextId,
       name: body.name,
       slug: body.slug,
       category: body.category,
@@ -71,12 +50,14 @@ export async function POST(request: NextRequest) {
     };
 
     const result = await db.collection("cars").insertOne(doc);
+    const insertedId = result.insertedId.toString();
 
+    revalidateTag("cars", "max");
     revalidatePath("/");
     revalidatePath("/fleet");
 
     return NextResponse.json(
-      { ...doc, _id: result.insertedId.toString() },
+      { ...doc, id: insertedId, _id: insertedId },
       { status: 201 }
     );
   } catch (error) {
