@@ -17,7 +17,11 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "KeralaCabs — Premium Car Rentals in Kerala",
+  metadataBase: new URL("https://www.keralacabs.in"),
+  title: {
+    default: "KeralaCabs — Premium Car Rentals in Kerala",
+    template: "%s | KeralaCabs",
+  },
   description:
     "Experience luxury self-drive rentals, chauffeur-driven tours, and premium wedding car services across Kerala. Book your premium fleet today.",
   keywords: [
@@ -28,11 +32,21 @@ export const metadata: Metadata = {
     "wedding car rental Kochi",
     "premium car hire Kerala",
   ],
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "KeralaCabs — Premium Car Rentals in Kerala",
     description:
       "Luxury self-drive & chauffeur-driven car rentals across God's Own Country.",
     type: "website",
+    url: "https://www.keralacabs.in",
+    siteName: "KeralaCabs",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KeralaCabs — Premium Car Rentals in Kerala",
+    description: "Experience luxury self-drive rentals and chauffeur-driven tours across Kerala.",
   },
 };
 

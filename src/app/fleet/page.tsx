@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { getCarsPaginated } from "@/lib/data/cars";
 import { FleetPageClient } from "./fleet-client";
+import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "Browse Our Fleet — KeralaCabs Premium Car Rentals",
+  title: "Browse Our Fleet",
   description:
     "Explore our complete collection of luxury sedans, powerful SUVs, elegant wedding cars, and premium self-drive vehicles available across Kerala.",
 };
@@ -35,14 +36,41 @@ export default async function FleetPage({ searchParams }: FleetPageProps) {
     q,
   });
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": result.cars.map((car, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Product",
+        "name": car.name,
+        "description": `${car.tagline} - ${car.transmission} ${car.fuelType} car`,
+        "category": car.category,
+        "offers": {
+          "@type": "Offer",
+          "price": car.pricePerDay,
+          "priceCurrency": "INR"
+        }
+      }
+    }))
+  };
+
   return (
-    <FleetPageClient
-      cars={result.cars}
-      total={result.total}
-      page={result.page}
-      limit={result.limit}
-      totalPages={result.totalPages}
-      dbError={result.dbError}
-    />
+    <>
+      <Script
+        id="json-ld-fleet"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <FleetPageClient
+        cars={result.cars}
+        total={result.total}
+        page={result.page}
+        limit={result.limit}
+        totalPages={result.totalPages}
+        dbError={result.dbError}
+      />
+    </>
   );
 }
