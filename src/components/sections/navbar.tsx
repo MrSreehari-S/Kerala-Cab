@@ -15,7 +15,11 @@ const navLinks = [
   { label: "Contact", href: "/contact" },
 ];
 
-export function Navbar() {
+interface NavbarProps {
+  hidden?: boolean;
+}
+
+export function Navbar({ hidden = false }: NavbarProps = {}) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -31,9 +35,9 @@ export function Navbar() {
   return (
     <motion.header
       initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+      animate={{ y: hidden ? -80 : 0, opacity: hidden ? 0 : 1 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed top-0 left-0 right-0 z-50 px-3 pt-3 pb-2 transition-all duration-500 pointer-events-none"
+      className={`fixed top-0 left-0 right-0 z-50 px-3 pt-3 pb-2 transition-all duration-500 ${hidden ? "pointer-events-none" : "pointer-events-none"}`}
     >
       <div
         className={`pointer-events-auto mx-auto flex items-center justify-between rounded-full transition-all duration-500 relative ${
