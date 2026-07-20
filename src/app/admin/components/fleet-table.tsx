@@ -6,6 +6,7 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
+  getPaginationRowModel,
   flexRender,
   type ColumnDef,
   type SortingState,
@@ -22,8 +23,10 @@ import {
   Trash2,
   ArrowUpDown,
   CarIcon,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
-import type { Car, DbCar } from "@/data/cars";
+import type { DbCar } from "@/data/cars";
 
 const PLACEHOLDER_IMG =
   "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400&q=60";
@@ -174,11 +177,17 @@ export function FleetTable({
     data: cars,
     columns,
     state: { globalFilter, sorting },
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
     onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   return (
@@ -237,53 +246,87 @@ export function FleetTable({
             </Button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <tr
-                    key={headerGroup.id}
-                    className="border-b border-border bg-muted/30"
-                  >
-                    {headerGroup.headers.map((header) => (
-                      <th
-                        key={header.id}
-                        className="px-4 py-3 text-left font-sans text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                <AnimatePresence>
-                  {table.getRowModel().rows.map((row) => (
-                    <motion.tr
-                      key={row.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="border-b border-border/50 transition-colors hover:bg-muted/20"
+          <div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <tr
+                      key={headerGroup.id}
+                      className="border-b border-border bg-muted/30"
                     >
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id} className="px-4 py-3">
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </td>
+                      {headerGroup.headers.map((header) => (
+                        <th
+                          key={header.id}
+                          className="px-4 py-3 text-left font-sans text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                        >
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </th>
                       ))}
-                    </motion.tr>
+                    </tr>
                   ))}
-                </AnimatePresence>
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  <AnimatePresence>
+                    {table.getRowModel().rows.map((row) => (
+                      <motion.tr
+                        key={row.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="border-b border-border/50 transition-colors hover:bg-muted/20"
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <td key={cell.id} className="px-4 py-3">
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </td>
+                        ))}
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            </div>
+
+            {/* ── Table Pagination Footer ── */}
+            {table.getPageCount() > 1 && (
+              <div className="flex items-center justify-between border-t border-border px-4 py-3">
+                <span className="font-sans text-xs text-muted-foreground">
+                  Page {table.getState().pagination.pageIndex + 1} of{" "}
+                  {table.getPageCount()} ({table.getFilteredRowModel().rows.length} total cars)
+                </span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                    className="font-sans text-xs h-8 px-3"
+                  >
+                    <ChevronLeft className="mr-1 h-3.5 w-3.5" />
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                    className="font-sans text-xs h-8 px-3"
+                  >
+                    Next
+                    <ChevronRight className="ml-1 h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

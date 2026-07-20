@@ -3,13 +3,45 @@ import { getDb } from "@/lib/mongodb";
 import { verifySession } from "@/lib/auth";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { getCarsCached } from "@/lib/data/cars";
+import { getCarsPaginated } from "@/lib/data/cars";
 
 // Prevent Next.js from statically caching this route at the HTTP layer.
 // The intentional data-layer cache lives inside getCarsCached (unstable_cache).
 export const dynamic = "force-dynamic";
 
-/** GET /api/cars — public, returns all cars (data-layer ISR cache via unstable_cache) */
-export async function GET() {
+/** GET /api/cars — public, supports paginated + filtered queries */
+export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
+
+  const page = searchParams.get("page");
+  const limit = searchParams.get("limit");
+  const category = searchParams.get("category");
+  const sort = searchParams.get("sort");
+  const q = searchParams.get("q");
+
+  // If any pagination/filter params are provided, use server-side pagination
+  const hasPaginationParams = page || limit || category || sort || q;
+
+  if (hasPaginationParams) {
+    const result = await getCarsPaginated({
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 8,
+      category: category || "all",
+      sort: sort || "price-asc",
+      q: q || "",
+    });
+
+    if (result.dbError) {
+      return NextResponse.json(
+        { error: "Failed to fetch cars" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(result);
+  }
+
+  // Legacy: return all cars (used by admin dashboard refresh)
   const { cars, dbError } = await getCarsCached();
   if (dbError) {
     return NextResponse.json(

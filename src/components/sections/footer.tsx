@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Accordion,
   AccordionContent,
@@ -103,15 +104,6 @@ export function FooterSection() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 shrink-0 text-accent" />
-                  <a
-                    href="mailto:concierge@keralacabs.com"
-                    className="transition-colors hover:text-accent"
-                  >
-                    concierge@keralacabs.com
-                  </a>
-                </div>
-                <div className="flex items-center gap-3">
                   <Globe className="h-4 w-4 shrink-0 text-accent" />
                   <a
                     href="http://www.keralacabs.in/"
@@ -142,10 +134,10 @@ export function FooterSection() {
                     Company
                   </h4>
                   <ul className="space-y-2 text-primary-foreground/60 font-sans">
-                    <li><a href="#why-us" className="hover:text-accent transition-colors">About Us</a></li>
-                    <li><a href="#testimonials" className="hover:text-accent transition-colors">Reviews</a></li>
-                    <li><a href="#faq" className="hover:text-accent transition-colors">FAQ</a></li>
-                    <li><a href="#" className="hover:text-accent transition-colors">Contact</a></li>
+                    <li><a href="/#why-us" className="hover:text-accent transition-colors">About Us</a></li>
+                    <li><a href="/#testimonials" className="hover:text-accent transition-colors">Reviews</a></li>
+                    <li><a href="/#faq" className="hover:text-accent transition-colors">FAQ</a></li>
+                    <li><Link href="/contact" className="hover:text-accent transition-colors">Contact</Link></li>
                   </ul>
                 </div>
               </div>
@@ -207,30 +199,21 @@ export function FooterSection() {
         </div>
       </footer>
 
-      {/* ═══ Floating Contact Buttons ═══ */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
-        <motion.a
+      {/* ═══ Floating Contact Button ═══ */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 2, type: "spring", stiffness: 200 }}
-          href="https://wa.me/918848228458?text=Hello%20KeralaCabs%2C%20I%20would%20like%20to%20enquire%20about%20a%20car%20rental."
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 transition-all duration-300 hover:scale-110 hover:shadow-xl hover:shadow-emerald-500/40"
-          aria-label="Contact via WhatsApp"
+          transition={{ delay: 1, type: "spring", stiffness: 200 }}
         >
-          <MessageSquare className="h-6 w-6" />
-        </motion.a>
-        <motion.a
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 2.2, type: "spring", stiffness: 200 }}
-          href="tel:+919847151674"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lg shadow-accent/30 transition-all duration-300 hover:scale-110 hover:shadow-xl hover:shadow-accent/40"
-          aria-label="Call Concierge"
-        >
-          <PhoneCall className="h-5 w-5" />
-        </motion.a>
+          <Link
+            href="/contact"
+            className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-xl shadow-accent/30 transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:shadow-accent/50 border border-amber-200/40"
+            aria-label="Contact Us"
+          >
+            <PhoneCall className="h-6 w-6" />
+          </Link>
+        </motion.div>
       </div>
     </>
   );

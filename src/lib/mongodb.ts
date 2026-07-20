@@ -148,6 +148,10 @@ export async function ensureIndexes(db: Db): Promise<void> {
       createSafely({ createdAt: -1 }),
       createSafely({ slug: 1 }, { unique: true }),
       createSafely({ category: 1, createdAt: -1 }),
+      createSafely({ pricePerDay: 1 }),
+      createSafely({ name: 1 }),
+      createSafely({ seats: -1 }),
+      createSafely({ category: 1, pricePerDay: 1 }),
     ]);
 
     indexesEnsured = true;

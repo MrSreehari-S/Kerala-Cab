@@ -660,25 +660,20 @@ function InitialHeroTitle({
 
         {/* ── CTAs matching hero.tsx ── */}
         <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 pointer-events-auto">
-          <Link href="/fleet">
-            <Button
-              className="group rounded-full bg-[#f4c066] px-8 py-3 font-sans text-sm font-semibold text-black transition-all duration-300 hover:bg-white hover:text-black hover:shadow-xl hover:shadow-[#f4c066]/20 h-auto"
-            >
-              Browse Our Fleet
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Button>
-          </Link>
+          <Button
+            nativeButton={false}
+            render={<Link href="/fleet" />}
+            className="group rounded-full bg-[#f4c066] px-8 py-3 font-sans text-sm font-semibold text-black transition-all duration-300 hover:bg-white hover:text-black hover:shadow-xl hover:shadow-[#f4c066]/20 h-auto"
+          >
+            Browse Our Fleet
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </Button>
 
           <Button
+            nativeButton={false}
             variant="outline"
             className="rounded-full border-white/20 px-8 py-3 font-sans text-sm text-white bg-black/60 backdrop-blur-md transition-all duration-300 hover:border-[#f4c066]/50 hover:bg-white/10 h-auto"
-            render={
-              <a
-                href="https://wa.me/918848228458?text=Hello%20KeralaCabs,%20I%20would%20like%20to%20enquire%20about%20a%20car%20rental."
-                target="_blank"
-                rel="noopener noreferrer"
-              />
-            }
+            render={<Link href="/contact" />}
           >
             <Phone className="mr-2 h-4 w-4 text-[#f4c066]" />
             Contact Concierge
