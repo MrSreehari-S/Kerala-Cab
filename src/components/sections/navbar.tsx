@@ -9,9 +9,10 @@ import Image from "next/image";
 
 const navLinks = [
   { label: "Fleet", href: "/fleet" },
-  { label: "Why Us", href: "#why-us" },
-  { label: "Testimonials", href: "#testimonials" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Why Us", href: "/#why-us" },
+  { label: "Testimonials", href: "/#testimonials" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export function Navbar() {
@@ -74,7 +75,7 @@ export function Navbar() {
           onMouseLeave={() => setHoveredIndex(null)}
         >
           {navLinks.map((link, idx) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               onMouseEnter={() => setHoveredIndex(idx)}
@@ -88,7 +89,7 @@ export function Navbar() {
                 />
               )}
               <span className="relative z-10">{link.label}</span>
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -97,7 +98,7 @@ export function Navbar() {
           <Button
             nativeButton={false}
             className="group relative overflow-hidden rounded-full bg-gradient-to-r from-[#f4c066] via-[#e5b053] to-[#d49a37] px-6 py-2 font-sans text-xs font-semibold uppercase tracking-wider text-black transition-all duration-300 hover:shadow-[0_0_20px_rgba(244,192,102,0.4)] hover:scale-105 border border-amber-200/40"
-            render={<a href="tel:+919847151674" />}
+            render={<Link href="/contact" />}
           >
             <span className="absolute inset-0 bg-white/30 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
             <span className="relative z-10 flex items-center gap-1.5">
@@ -129,20 +130,20 @@ export function Navbar() {
           >
             <nav className="flex flex-col gap-2">
               {navLinks.map((link) => (
-                <a
+                <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMobileOpen(false)}
                   className="rounded-xl px-4 py-2.5 font-sans text-sm font-medium text-white/90 transition-all hover:bg-white/10 hover:text-white hover:pl-6"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
               <div className="mt-2 pt-2 border-t border-white/10">
                 <Button
                   nativeButton={false}
                   className="w-full rounded-xl bg-gradient-to-r from-[#f4c066] to-[#d49a37] py-2.5 font-sans text-sm font-semibold text-black shadow-lg"
-                  render={<a href="tel:+919847151674" />}
+                  render={<Link href="/contact" />}
                 >
                   <Phone className="mr-2 h-4 w-4" />
                   Book Now

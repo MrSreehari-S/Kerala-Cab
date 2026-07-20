@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Users, Fuel, Gauge, Award, Car as CarIcon } from "lucide-react";
+import { Users, Fuel, Gauge, Award, Car as CarIcon, Images } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Car } from "@/data/cars";
@@ -11,12 +11,19 @@ import type { Car } from "@/data/cars";
 interface CarCardProps {
   car: Car;
   onBook: (car: Car) => void;
+  onViewDetail?: (car: Car) => void;
   priority?: boolean;
 }
 
-export function CarCard({ car, onBook, priority = false }: CarCardProps) {
+export function CarCard({
+  car,
+  onBook,
+  onViewDetail,
+  priority = false,
+}: CarCardProps) {
   const hasImage = car.images && car.images.length > 0;
-  const [imgSrc, setImgSrc] = useState(hasImage ? car.images[0] : "");
+  const imageCount = car.images ? car.images.length : 0;
+  const [imgSrc] = useState(hasImage ? car.images[0] : "");
   const [hasError, setHasError] = useState(false);
 
   const categoryLabels: Record<string, string> = {
@@ -26,13 +33,22 @@ export function CarCard({ car, onBook, priority = false }: CarCardProps) {
     wedding: "Wedding",
   };
 
+  const handleCardClick = () => {
+    if (onViewDetail) {
+      onViewDetail(car);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="group/card relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-accent/5 hover:border-accent/30"
+      onClick={handleCardClick}
+      className={`group/card relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-accent/5 hover:border-accent/30 ${
+        onViewDetail ? "cursor-pointer" : ""
+      }`}
     >
       {/* ── Image Container — 16:10 aspect ratio ── */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
@@ -61,10 +77,10 @@ export function CarCard({ car, onBook, priority = false }: CarCardProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover/card:opacity-100" />
         )}
 
-        {/* Badges */}
-        <div className="absolute left-3 top-3 flex gap-2">
+        {/* Left Badges */}
+        <div className="absolute left-3 top-3 flex gap-2 z-10">
           <Badge className="border-none bg-background/75 px-2.5 py-1 font-sans text-xs font-semibold capitalize text-foreground backdrop-blur-md">
-            {categoryLabels[car.category]}
+            {categoryLabels[car.category] || car.category}
           </Badge>
           {car.isChauffeurOnly && (
             <Badge className="flex items-center gap-1 border-none bg-accent/90 px-2.5 py-1 font-sans text-xs font-semibold text-accent-foreground backdrop-blur-md">
@@ -73,6 +89,16 @@ export function CarCard({ car, onBook, priority = false }: CarCardProps) {
             </Badge>
           )}
         </div>
+
+        {/* Right Photo count badge if multiple photos */}
+        {imageCount > 1 && (
+          <div className="absolute right-3 top-3 z-10">
+            <Badge className="flex items-center gap-1 border-none bg-black/60 px-2.5 py-1 font-sans text-[11px] font-medium text-white backdrop-blur-md">
+              <Images className="h-3 w-3 text-accent" />
+              {imageCount} Photos
+            </Badge>
+          </div>
+        )}
       </div>
 
       {/* ── Details ── */}
@@ -114,7 +140,10 @@ export function CarCard({ car, onBook, priority = false }: CarCardProps) {
             </p>
           </div>
           <Button
-            onClick={() => onBook(car)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onBook(car);
+            }}
             className="rounded-full bg-primary px-5 font-sans text-xs font-semibold text-primary-foreground transition-all duration-300 hover:bg-accent hover:text-accent-foreground sm:text-sm"
           >
             Reserve
