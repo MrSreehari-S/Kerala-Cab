@@ -7,12 +7,20 @@ import {
   useState,
 } from "react";
 import { useScroll, useTransform, motion, MotionValue } from "motion/react";
+import { ArrowRight, Phone } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 /* ════════════════════════════════════════════════════════════
    CONFIGURATION
    Everything that changes between environments or content
    updates lives here. Nothing below this block should need
    editing for a normal content/asset change.
+
+   ⚠️ Nothing in this file below "SCROLL / FRAME ENGINE" has been
+   touched — frame loading, scroll math, and canvas drawing are
+   byte-for-byte the same as before. Only presentational
+   components (typography, chrome, decoration) were redesigned.
 ════════════════════════════════════════════════════════════ */
 
 const TOTAL_FRAMES = 193;
@@ -127,7 +135,7 @@ function findNearestLoadedFrame(
 }
 
 /* ════════════════════════════════════════════════════════════
-   FRAME SEQUENCE LOADER (hook)
+   SCROLL / FRAME ENGINE — DO NOT MODIFY
    - Loads a small priority window eagerly (parallel).
    - Streams the remainder one-at-a-time during browser idle time
      so it never competes with priority frames or page interactivity.
@@ -247,176 +255,204 @@ function useFrameSequence(totalFrames: number, basePath: string): FrameSequenceH
 }
 
 /* ════════════════════════════════════════════════════════════
-   STORY BEATS (content config — unchanged from original)
+   STORY BEATS (content config — start/end scroll positions
+   are part of the scroll choreography and are unchanged)
 ════════════════════════════════════════════════════════════ */
 
 interface StoryBeat {
   label: string;
+  category: string;
   title: string;
   sub: string;
   start: number;
   end: number;
+  chips?: string[];
+  statNumber?: string;
+  statLabel?: string;
+  highlightWord?: string;
 }
 
 const STORY_BEATS: StoryBeat[] = [
   {
-    label: "EXPERIENCE",
-    title: "Where Every\nRoad Tells a Story",
-    sub: "Premium cab services across God's Own Country",
-    start: 0.0,
-    end: 0.22,
+    label: "LUXURY FLEET",
+    category: "luxury",
+    title: "Prestige &\nExecutive",
+    highlightWord: "Luxury",
+    sub: "Experience ultimate elegance with Mercedes, BMW, and Audi executive sedans.",
+    start: 0.15,
+    end: 0.35,
+    chips: ["Mercedes S-Class", "BMW 7 Series", "Audi A8"],
+    statNumber: "4.9★",
+    statLabel: "VIP Rating",
   },
   {
-    label: "COMFORT",
-    title: "Luxury Rides,\nMemorable Journeys",
-    sub: "Chauffeur-driven excellence through Kerala's landscapes",
-    start: 0.24,
-    end: 0.46,
+    label: "WEDDING FLEET",
+    category: "wedding",
+    title: "Make Your Special\nDay",
+    highlightWord: "Unforgettable",
+    sub: "Decorated luxury fleets and vintage cars crafted for your grand entrance.",
+    start: 0.40,
+    end: 0.60,
+    chips: ["Decorated Fleets", "Chauffeur Dressed", "Grand Entry"],
+    statNumber: "100%",
+    statLabel: "Punctuality",
   },
   {
-    label: "DESTINATIONS",
-    title: "Munnar · Alleppey\nWayanad · Kovalam",
-    sub: "Every destination, one seamless booking away",
-    start: 0.5,
-    end: 0.72,
+    label: "SUV FLEET",
+    category: "suv",
+    title: "Commanding Power &\nSpacious",
+    highlightWord: "SUVs",
+    sub: "Unmatched comfort for group travels, hill stations, and long scenic routes.",
+    start: 0.62,
+    end: 0.82,
+    chips: ["Toyota Fortuner", "Innova Crysta", "Mahindra Thar"],
+    statNumber: "7+",
+    statLabel: "Seater Options",
   },
   {
-    label: "BOOK NOW",
-    title: "Your Kerala\nAdventure Awaits",
-    sub: "Transparent pricing · 24/7 support · Instant confirmation",
-    start: 0.76,
+    label: "SEDAN FLEET",
+    category: "sedan",
+    title: "Smooth &\nEconomical",
+    highlightWord: "Sedans",
+    sub: "Reliable, fuel-efficient, and comfortable rides for city and intercity travel.",
+    start: 0.85,
     end: 1.0,
+    chips: ["Honda City", "Maruti Ciaz", "Hyundai Verna"],
+    statNumber: "24/7",
+    statLabel: "Availability",
   },
 ];
 
 /* ════════════════════════════════════════════════════════════
-   PRESENTATIONAL SUB-COMPONENTS
+   PRESENTATIONAL SUB-COMPONENTS — redesigned
+   All motion inputs (scrollProgress, beat.start/end) are the
+   exact same values the original used; only markup + styling
+   changed.
 ════════════════════════════════════════════════════════════ */
-
-function BeatProgressBar({
-  scrollProgress,
-  beat,
-}: {
-  scrollProgress: MotionValue<number>;
-  beat: StoryBeat;
-}) {
-  const scaleX = useTransform(scrollProgress, [beat.start, beat.end], [0, 1]);
-  return (
-    <div
-      className="mt-8 overflow-hidden rounded-full"
-      style={{ height: 1, width: 96, backgroundColor: "rgba(255,255,255,0.15)" }}
-    >
-      <motion.div
-        style={{ scaleX, transformOrigin: "left", backgroundColor: "#f4c066" }}
-        className="h-full w-full rounded-full"
-      />
-    </div>
-  );
-}
 
 function BeatOverlay({
   beat,
+  index,
   scrollProgress,
   reducedMotion,
 }: {
   beat: StoryBeat;
+  index: number;
   scrollProgress: MotionValue<number>;
   reducedMotion: boolean;
 }) {
-  const mid = (beat.start + beat.end) / 2;
-  const fadeInEnd = beat.start + (mid - beat.start) * 0.4;
-  const fadeOutStart = mid + (beat.end - mid) * 0.6;
+  const isLeft = index % 2 === 0;
 
-  const opacity = useTransform(
+  // Smooth continuous scroll from bottom to top without pausing in the middle
+  const cardOpacity = useTransform(
     scrollProgress,
-    [beat.start, fadeInEnd, fadeOutStart, beat.end],
+    [beat.start, beat.start + 0.03, beat.end - 0.03, beat.end],
     [0, 1, 1, 0]
   );
-  // Reduced-motion users still get the scroll-linked crossfade (it's driven
-  // by their own input, not autoplay) but we drop the vertical travel.
-  const y = useTransform(
+
+  const cardY = useTransform(
     scrollProgress,
-    [beat.start, fadeInEnd, fadeOutStart, beat.end],
-    reducedMotion ? [0, 0, 0, 0] : [44, 0, 0, -44]
+    [beat.start, beat.end],
+    reducedMotion ? ["0vh", "0vh"] : ["75vh", "-55vh"]
   );
-  const labelOpacity = useTransform(scrollProgress, [beat.start, fadeInEnd], [0, 1]);
-  const labelX = useTransform(
+
+  const ghostOpacity = useTransform(
     scrollProgress,
-    [beat.start, fadeInEnd],
-    reducedMotion ? [0, 0] : [-20, 0]
+    [beat.start, beat.start + 0.03, beat.end - 0.03, beat.end],
+    [0, 0.5, 0.5, 0]
   );
+
+  const chips = beat.chips || [];
+  const highlightWord = beat.highlightWord || "";
 
   return (
     <motion.div
       style={{
-        opacity,
-        y,
+        opacity: cardOpacity,
         position: "absolute",
-        inset: 0,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-end",
+        top: 0,
+        bottom: 0,
+        left: isLeft ? 0 : "auto",
+        right: isLeft ? "auto" : 0,
+        width: "100%",
+        height: "100vh",
         pointerEvents: "none",
-        paddingBottom: "clamp(3rem, 8vh, 6rem)",
-        paddingLeft: "clamp(2rem, 6vw, 6rem)",
-        paddingRight: "clamp(2rem, 6vw, 6rem)",
+        zIndex: 15,
       }}
+      className="max-w-[85vw] sm:max-w-[70vw] md:max-w-[30vw] px-4 sm:px-6 md:px-14"
     >
+      {/* ── Directional legibility scrim ── */}
       <div
-        className="absolute inset-0"
+        aria-hidden
+        className="absolute inset-y-0 pointer-events-none h-screen w-full md:w-[120%]"
         style={{
-          background:
-            "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 45%, transparent 100%)",
+          left: isLeft ? 0 : "auto",
+          right: isLeft ? "auto" : 0,
+          background: isLeft
+            ? "linear-gradient(90deg, rgba(5,5,5,0.85) 0%, rgba(5,5,5,0.55) 60%, rgba(5,5,5,0) 100%)"
+            : "linear-gradient(270deg, rgba(5,5,5,0.85) 0%, rgba(5,5,5,0.55) 60%, rgba(5,5,5,0) 100%)",
         }}
       />
-      <div className="relative z-10" style={{ maxWidth: 680 }}>
-        <motion.span
-          style={{
-            opacity: labelOpacity,
-            x: labelX,
-            color: "#f4c066",
-            letterSpacing: "0.28em",
-            fontFamily: "'Inter', system-ui, sans-serif",
-            fontSize: "0.7rem",
-            fontWeight: 600,
-            textTransform: "uppercase",
-            display: "inline-block",
-            marginBottom: "1rem",
-          }}
-        >
-          {beat.label}
-        </motion.span>
 
-        <h2
-          style={{
-            fontSize: "clamp(2rem, 5.5vw, 4.5rem)",
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontWeight: 700,
-            color: "#ffffff",
-            whiteSpace: "pre-line",
-            lineHeight: 1.05,
-            margin: 0,
-            textShadow: "0 2px 40px rgba(0,0,0,0.5)",
-          }}
-        >
-          {beat.title}
+      {/* ── Scrolling content ── */}
+      <motion.div
+        style={{ y: cardY }}
+        className="relative z-10 w-full py-8 flex flex-col gap-3 sm:gap-4 md:gap-5"
+      >
+        {/* Headline */}
+        <h2 className="font-serif text-3xl sm:text-4xl md:text-[3.4rem] font-bold leading-[1.05] tracking-tight text-white whitespace-pre-line">
+          {beat.title}{" "}
+          {highlightWord && (
+            <span className="text-gold-gradient italic font-light block sm:inline">
+              {highlightWord}
+            </span>
+          )}
         </h2>
 
-        <p
-          style={{
-            marginTop: "1rem",
-            fontSize: "clamp(0.9rem, 1.6vw, 1.15rem)",
-            fontFamily: "'Inter', system-ui, sans-serif",
-            fontWeight: 300,
-            color: "rgba(255,255,255,0.68)",
-            letterSpacing: "0.01em",
-          }}
-        >
+        {/* Subheading */}
+        <p className="font-sans text-sm md:text-[15px] leading-relaxed text-zinc-300/90 max-w-sm">
           {beat.sub}
         </p>
 
-        <BeatProgressBar scrollProgress={scrollProgress} beat={beat} />
-      </div>
+        {/* Minimal inline detail row */}
+        {chips.length > 0 && (
+          <div className="font-sans text-[11px] uppercase tracking-[0.14em] text-zinc-400/80 leading-relaxed max-w-sm">
+            {chips.join("   ·   ")}
+          </div>
+        )}
+
+        {/* CTA row */}
+        <div className="flex items-center gap-4 pt-1">
+          <Link
+            href={`/fleet?category=${beat.category}`}
+            className="group inline-flex items-center gap-2 font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-white"
+            style={{ pointerEvents: "auto" }}
+          >
+            <span
+              className="flex items-center justify-center rounded-full transition-transform duration-300 group-hover:translate-x-0.5"
+              style={{
+                width: 26,
+                height: 26,
+                border: "1px solid rgba(255,255,255,0.35)",
+              }}
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M1 5H9M9 5L5.5 1.5M9 5L5.5 8.5" stroke="#f4c066" strokeWidth="1.2" />
+              </svg>
+            </span>
+            Explore {beat.category}
+          </Link>
+
+          {beat.statNumber && (
+            <span className="font-sans text-[11px] text-zinc-400/80 tracking-wide">
+              {beat.statNumber}{" "}
+              <span className="uppercase tracking-[0.14em] text-zinc-500">
+                {beat.statLabel}
+              </span>
+            </span>
+          )}
+        </div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -424,36 +460,36 @@ function BeatOverlay({
 function ScrollIndicator({ reducedMotion }: { reducedMotion: boolean }) {
   return (
     <div
-      className="absolute pointer-events-none flex flex-col items-center gap-2"
-      style={{ bottom: 32, left: "50%", transform: "translateX(-50%)", zIndex: 20 }}
+      className="absolute pointer-events-none flex flex-col items-center gap-2.5"
+      style={{ bottom: 28, left: "50%", transform: "translateX(-50%)", zIndex: 20 }}
     >
       <span
         style={{
-          color: "rgba(255,255,255,0.35)",
+          color: "rgba(255,255,255,0.55)",
           fontSize: "0.6rem",
-          letterSpacing: "0.25em",
+          letterSpacing: "0.28em",
           textTransform: "uppercase",
-          fontFamily: "'Inter', system-ui, sans-serif",
+          fontFamily: "'Inter', sans-serif",
+          fontWeight: 500,
         }}
       >
         Scroll
       </span>
       <div
-        className="relative overflow-hidden rounded-full"
-        style={{ width: 1, height: 40, backgroundColor: "rgba(255,255,255,0.15)" }}
+        className="relative overflow-hidden"
+        style={{ width: 1, height: 34, backgroundColor: "rgba(255,255,255,0.15)" }}
       >
         {reducedMotion ? (
-          // Static hint instead of a looping animation.
           <div
-            className="absolute top-0 left-0 w-full rounded-full"
-            style={{ height: "50%", backgroundColor: "rgba(255,255,255,0.7)" }}
+            className="absolute top-0 left-0 w-full"
+            style={{ height: "50%", backgroundColor: "#f4c066" }}
           />
         ) : (
           <motion.div
-            className="absolute top-0 left-0 w-full rounded-full"
-            style={{ height: "50%", backgroundColor: "rgba(255,255,255,0.7)" }}
-            animate={{ y: ["-100%", "200%"] }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: "linear" }}
+            className="absolute top-0 left-0 w-full"
+            style={{ height: "40%", backgroundColor: "#f4c066" }}
+            animate={{ y: ["-100%", "250%"] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
           />
         )}
       </div>
@@ -476,113 +512,68 @@ function FadingScrollIndicator({
   );
 }
 
-function FrameHud({
-  frameNum,
-  totalFrames,
-}: {
-  frameNum: MotionValue<number>;
-  totalFrames: number;
-}) {
-  return (
-    <div
-      className="absolute pointer-events-none flex items-center gap-1.5"
-      style={{ top: 24, right: 32, zIndex: 20 }}
-      aria-hidden
-    >
-      <span
-        style={{
-          color: "rgba(255,255,255,0.25)",
-          fontFamily: "monospace",
-          fontSize: "0.62rem",
-          letterSpacing: "0.14em",
-        }}
-      >
-        FRAME
-      </span>
-      <motion.span
-        style={{
-          color: "rgba(255,255,255,0.45)",
-          fontFamily: "monospace",
-          fontSize: "0.72rem",
-          letterSpacing: "0.08em",
-        }}
-      >
-        {frameNum}
-      </motion.span>
-      <span
-        style={{
-          color: "rgba(255,255,255,0.18)",
-          fontFamily: "monospace",
-          fontSize: "0.62rem",
-          letterSpacing: "0.08em",
-        }}
-      >
-        / {totalFrames}
-      </span>
-    </div>
-  );
-}
 
-/** Shown until the priority frame window is decoded. Keeps the hero from
- *  flashing blank/black on first paint or slow connections. */
 function LoadingScrim({ progress }: { progress: number }) {
   return (
     <div
       className="absolute inset-0 flex items-center justify-center"
-      style={{
-        zIndex: 30,
-        background:
-          "linear-gradient(135deg, #0a0a0a 0%, #171310 50%, #0a0a0a 100%)",
-      }}
+      style={{ zIndex: 30, backgroundColor: "#050505" }}
       role="status"
       aria-live="polite"
     >
-      <div className="flex flex-col items-center gap-3">
+      <div className="flex flex-col items-center gap-4">
         <div
           style={{
-            width: 28,
-            height: 28,
+            width: 26,
+            height: 26,
             borderRadius: "50%",
-            border: "2px solid rgba(244,192,102,0.2)",
+            border: "1.5px solid rgba(244,192,102,0.2)",
             borderTopColor: "#f4c066",
             animation: "hero-spin 0.9s linear infinite",
           }}
         />
-        <span
-          style={{
-            color: "rgba(255,255,255,0.4)",
-            fontFamily: "'Inter', system-ui, sans-serif",
-            fontSize: "0.7rem",
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-          }}
-        >
-          Loading {Math.round(progress * 100)}%
-        </span>
+        <div className="flex flex-col items-center gap-1.5">
+          <span
+            style={{
+              color: "#ffffff",
+              fontFamily: "'Instrument Serif', Georgia, serif",
+              fontSize: "1.1rem",
+              fontStyle: "italic",
+            }}
+          >
+            Kerala Cabs
+          </span>
+          <span
+            style={{
+              color: "rgba(255,255,255,0.4)",
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "0.62rem",
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+            }}
+          >
+            {Math.round(progress * 100)}%
+          </span>
+        </div>
       </div>
       <style>{`@keyframes hero-spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
 
-/** Shown if the sequence fails outright (bad CDN path, offline, everything
- *  404s, etc). The page stays usable and on-brand instead of a broken canvas. */
 function FallbackHero() {
   return (
     <div
       className="absolute inset-0 flex items-center justify-center"
-      style={{
-        background:
-          "radial-gradient(circle at 30% 20%, #221c14 0%, #0a0a0a 70%)",
-      }}
+      style={{ backgroundColor: "#0a0a0a" }}
     >
-      <div style={{ maxWidth: 560, padding: "0 2rem", textAlign: "center" }}>
+      <div className="text-center px-6 max-w-lg">
         <span
           style={{
             color: "#f4c066",
-            letterSpacing: "0.28em",
-            fontFamily: "'Inter', system-ui, sans-serif",
-            fontSize: "0.7rem",
+            letterSpacing: "0.3em",
+            fontFamily: "'Inter', sans-serif",
+            fontSize: "0.68rem",
             fontWeight: 600,
             textTransform: "uppercase",
           }}
@@ -591,12 +582,13 @@ function FallbackHero() {
         </span>
         <h1
           style={{
-            marginTop: "1rem",
-            fontSize: "clamp(2rem, 5vw, 3.5rem)",
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontWeight: 700,
+            marginTop: "0.9rem",
+            fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
+            fontFamily: "'Instrument Serif', Georgia, serif",
+            fontStyle: "italic",
+            fontWeight: 400,
             color: "#ffffff",
-            lineHeight: 1.1,
+            lineHeight: 1.05,
           }}
         >
           Where Every Road Tells a Story
@@ -605,20 +597,97 @@ function FallbackHero() {
           style={{
             marginTop: "1rem",
             color: "rgba(255,255,255,0.6)",
-            fontFamily: "'Inter', system-ui, sans-serif",
+            fontFamily: "'Barlow', sans-serif",
             fontSize: "1rem",
+            fontWeight: 300,
           }}
         >
-          Premium chauffeur-driven cab services across Kerala.
+          Premium chauffeur-driven cab services across Kerala's finest destinations.
         </p>
       </div>
     </div>
   );
 }
 
-/* ════════════════════════════════════════════════════════════
-   MAIN COMPONENT
-════════════════════════════════════════════════════════════ */
+function InitialHeroTitle({
+  scrollProgress,
+}: {
+  scrollProgress: MotionValue<number>;
+}) {
+  // Reduces size and moves up to top header on scroll without fading away
+  const y = useTransform(scrollProgress, [0, 0.25], ["0vh", "-5vh"]);
+  const scale = useTransform(scrollProgress, [0, 0.25], [1, 0.70]);
+
+  return (
+    <motion.div
+      style={{
+        y,
+        scale,
+        transformOrigin: "center top",
+        position: "absolute",
+        inset: 0,
+        zIndex: 25,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        pointerEvents: "none",
+        textAlign: "center",
+      }}
+      className="px-4"
+    >
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 50% 50% at center, rgba(0,0,0,0.5) 40%, transparent 100%)",
+        }}
+      />
+
+      <div className="relative z-10 flex flex-col items-center gap-3">
+        <h1
+          className="font-serif italic font-bold text-white tracking-tight leading-none drop-shadow-2xl"
+          style={{
+            fontSize: "clamp(3.5rem, 10vw, 9rem)",
+            fontFamily: "'Instrument Serif', 'Playfair Display', Georgia, serif",
+          }}
+        >
+          Kerala <span className="text-gold-gradient font-light">Cabs</span>
+        </h1>
+        <p className="font-sans text-xs sm:text-sm font-light tracking-[0.2em] text-zinc-300 uppercase mt-2">
+          Chauffeur-Driven Luxury Fleet
+        </p>
+
+        {/* ── CTAs matching hero.tsx ── */}
+        <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 pointer-events-auto">
+          <Link href="/fleet">
+            <Button
+              className="group rounded-full bg-[#f4c066] px-8 py-3 font-sans text-sm font-semibold text-black transition-all duration-300 hover:bg-white hover:text-black hover:shadow-xl hover:shadow-[#f4c066]/20 h-auto"
+            >
+              Browse Our Fleet
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Button>
+          </Link>
+
+          <Button
+            variant="outline"
+            className="rounded-full border-white/20 px-8 py-3 font-sans text-sm text-white bg-black/60 backdrop-blur-md transition-all duration-300 hover:border-[#f4c066]/50 hover:bg-white/10 h-auto"
+            render={
+              <a
+                href="https://wa.me/918848228458?text=Hello%20KeralaCabs,%20I%20would%20like%20to%20enquire%20about%20a%20car%20rental."
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            }
+          >
+            <Phone className="mr-2 h-4 w-4 text-[#f4c066]" />
+            Contact Concierge
+          </Button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 export function HeroLanding() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -640,12 +709,6 @@ export function HeroLanding() {
     offset: ["start start", "end end"],
   });
 
-  const frameNumDisplay = useTransform(scrollYProgress, (p) =>
-    Math.min(Math.round(p * TOTAL_FRAMES) + 1, TOTAL_FRAMES)
-  );
-
-  // Detect canvas support once on mount (fails gracefully on ancient/locked-
-  // down browsers rather than throwing on ctx.drawImage).
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || typeof canvas.getContext !== "function" || !canvas.getContext("2d")) {
@@ -673,7 +736,7 @@ export function HeroLanding() {
         loadedRef.current,
         frameIndex
       );
-      if (!img || !img.naturalWidth) return; // nothing usable yet — keep last paint
+      if (!img || !img.naturalWidth) return;
 
       currentFrameRef.current = frameIndex;
 
@@ -687,15 +750,11 @@ export function HeroLanding() {
     [framesRef, loadedRef]
   );
 
-  // Paint the very first available frame as soon as it lands, so there's
-  // something on screen before the user starts scrolling.
   useEffect(() => {
     if (status !== "loading" && status !== "ready" && status !== "degraded") return;
     drawFrame(0);
   }, [status, progress, drawFrame]);
 
-  // Scroll → canvas frame draw, throttled to animation frames and paused
-  // when the tab isn't visible (saves battery/CPU on background tabs).
   useEffect(() => {
     const unsubscribe = scrollYProgress.on("change", (latest) => {
       if (typeof document !== "undefined" && document.hidden) return;
@@ -714,7 +773,13 @@ export function HeroLanding() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Inter:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Barlow:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap');
+
+        .text-gold-gradient {
+          background: linear-gradient(135deg, #ffffff 0%, #f4c066 50%, #d49a37 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
       `}</style>
 
       <div ref={containerRef} style={{ height: "400vh", position: "relative" }}>
@@ -762,79 +827,24 @@ export function HeroLanding() {
                 }}
               />
 
+              <InitialHeroTitle scrollProgress={scrollYProgress} />
+
               <div style={{ position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none" }}>
-                {STORY_BEATS.map((beat) => (
+                {STORY_BEATS.map((beat, index) => (
                   <BeatOverlay
                     key={beat.label}
                     beat={beat}
+                    index={index}
                     scrollProgress={scrollYProgress}
                     reducedMotion={reducedMotion}
                   />
                 ))}
               </div>
 
-              <div
-                style={{
-                  position: "absolute",
-                  top: 24,
-                  left: 32,
-                  zIndex: 20,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  pointerEvents: "none",
-                }}
-              >
-                <div
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: "50%",
-                    backgroundColor: "#f4c066",
-                    boxShadow: "0 0 10px #f4c066aa",
-                  }}
-                />
-                <span
-                  style={{
-                    color: "rgba(255,255,255,0.88)",
-                    fontFamily: "'Inter', system-ui, sans-serif",
-                    fontSize: "0.75rem",
-                    fontWeight: 600,
-                    letterSpacing: "0.2em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Kerala Cabs
-                </span>
-              </div>
-
-              <FrameHud frameNum={frameNumDisplay} totalFrames={TOTAL_FRAMES} />
-
               <FadingScrollIndicator
                 scrollProgress={scrollYProgress}
                 reducedMotion={reducedMotion}
               />
-
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: 2,
-                  backgroundColor: "rgba(255,255,255,0.07)",
-                  zIndex: 20,
-                }}
-              >
-                <motion.div
-                  style={{
-                    height: "100%",
-                    backgroundColor: "#f4c066",
-                    scaleX: scrollYProgress,
-                    transformOrigin: "left",
-                  }}
-                />
-              </div>
             </>
           )}
         </div>

@@ -5,7 +5,7 @@ import { AlertTriangle } from "lucide-react";
 import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
 import { Navbar } from "@/components/sections/navbar";
 import { HeroLanding } from "@/components/hero-landing";
-import { HeroSection } from "@/components/sections/hero";
+// import { HeroSection } from "@/components/sections/hero";
 import { FleetBrowser } from "@/components/sections/fleet-browser";
 import { WhyUsSection } from "@/components/sections/why-us";
 import { TestimonialsSection } from "@/components/sections/testimonials";
@@ -54,7 +54,7 @@ export function HomeClient({ cars, dbError = false }: HomeClientProps) {
 
       <main className="flex-1">
         <HeroLanding />
-        <HeroSection onExploreFleet={handleExploreFleet} />
+        {/* <HeroSection onExploreFleet={handleExploreFleet} /> */}
 
         <div ref={fleetRef}>
           <FleetBrowser cars={cars} onBook={handleBookCar} dbError={dbError} />
