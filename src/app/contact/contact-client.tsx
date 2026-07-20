@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 
 export function ContactPageClient() {
   const whatsappUrl =
-    "https://wa.me/918848228458?text=Hello%20KeralaCabs,%20I%20would%20like%20to%20enquire%20about%20a%20car%20rental.";
+    "https://wa.me/917012436857?text=Hello%20KeralaCabs,%20I%20would%20like%20to%20enquire%20about%20a%20car%20rental.";
 
   return (
     <>
@@ -130,18 +130,11 @@ export function ContactPageClient() {
 
                 <div className="mb-6 space-y-2 font-sans text-sm">
                   <a
-                    href="tel:+919847151674"
-                    className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-4 py-2.5 font-semibold text-foreground transition-all hover:border-accent hover:text-accent"
-                  >
-                    <span>+91 98471 51674</span>
-                    <span className="text-xs text-muted-foreground">Main Line</span>
-                  </a>
-                  <a
                     href="tel:+917012436857"
                     className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-4 py-2.5 font-semibold text-foreground transition-all hover:border-accent hover:text-accent"
                   >
                     <span>+91 70124 36857</span>
-                    <span className="text-xs text-muted-foreground">Secondary</span>
+                    <span className="text-xs text-muted-foreground">Main Line</span>
                   </a>
                 </div>
               </div>
@@ -149,7 +142,7 @@ export function ContactPageClient() {
               <Button
                 nativeButton={false}
                 className="w-full rounded-full bg-accent font-sans text-sm font-semibold text-accent-foreground transition-all duration-300 hover:bg-accent/90 shadow-lg shadow-accent/20 h-12"
-                render={<a href="tel:+919847151674" />}
+                render={<a href="tel:+917012436857" />}
               >
                 Call Concierge Now
                 <ArrowRight className="ml-2 h-4 w-4" />

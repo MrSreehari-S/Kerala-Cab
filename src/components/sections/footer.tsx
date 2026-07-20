@@ -90,12 +90,6 @@ export function FooterSection() {
                   <Phone className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                   <div className="flex flex-col gap-1">
                     <a
-                      href="tel:+919847151674"
-                      className="transition-colors hover:text-accent"
-                    >
-                      +91 98471 51674
-                    </a>
-                    <a
                       href="tel:+917012436857"
                       className="transition-colors hover:text-accent"
                     >
