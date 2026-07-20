@@ -17,10 +17,11 @@ const navLinks = [
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      setIsScrolled(window.scrollY > 30);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -28,97 +29,122 @@ export function Navbar() {
 
   return (
     <motion.header
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 rounded-full m-3 ${
-        isScrolled
-          ? "bg-background/50 backdrop-blur-xl "
-          : "bg-transparent"
-      }`}
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed top-0 left-0 right-0 z-50 px-3 pt-3 pb-2 transition-all duration-500 pointer-events-none"
     >
-      <div className="section-container flex h-16 items-center justify-between md:h-20">
+      <div
+        className={`pointer-events-auto mx-auto flex items-center justify-between rounded-full transition-all duration-500 relative ${
+          isScrolled
+            ? "max-w-4xl px-5 py-2 bg-black/40 backdrop-blur-2xl backdrop-saturate-180 border border-white/15 "
+            : "max-w-6xl px-6 py-2.5 bg-black/20 backdrop-blur-xl backdrop-saturate-150 border border-white/10 "
+        }`}
+      >
+        {/* Specular Light / Top Glass Highlight */}
+        <div
+          className="absolute inset-x-8 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none rounded-full"
+          aria-hidden
+        />
+
         {/* ── Logo ── */}
-        <Link href="/" className="flex items-center">
-          <Image
-            src="/logo.jpeg"
-            alt="KeralaCabs Logo"
-            width={120}
-            height={40}
-            className="h-10 w-auto object-contain rounded-md"
-            priority
-          />
+        <Link
+          href="/"
+          className="group flex items-center gap-2.5 relative z-10 transition-transform duration-300 hover:scale-105"
+        >
+          <div className="relative">
+            <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-amber-500/20 to-amber-300/0 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <Image
+              src="/images/logo-nobg.webp"
+              alt="KeralaCabs Logo"
+              width={85}
+              height={85}
+              className="h-9 md:h-11 w-auto relative z-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
+              priority
+            />
+          </div>
+          <span className="font-serif italic font-semibold text-lg md:text-xl text-white tracking-tight leading-none hidden sm:inline-block">
+            Kerala <span className="text-gold-gradient font-light">Cabs</span>
+          </span>
         </Link>
 
-        {/* ── Desktop Navigation ── */}
-        <nav className="hidden items-center gap-8 md:flex">
-          {navLinks.map((link) => (
+        {/* ── Desktop Navigation Links (Glass Bar Capsule) ── */}
+        <nav
+          className="hidden items-center gap-1 md:flex relative z-10 bg-white/[0.04] p-1 rounded-full border border-white/10 shadow-inner"
+          onMouseLeave={() => setHoveredIndex(null)}
+        >
+          {navLinks.map((link, idx) => (
             <a
               key={link.href}
               href={link.href}
-              className={`font-sans text-sm font-medium tracking-wide transition-colors duration-200 hover:text-accent ${
-                isScrolled ? "text-foreground/70" : "text-white/80"
-              }`}
+              onMouseEnter={() => setHoveredIndex(idx)}
+              className="relative px-4 py-1.5 font-sans text-xs uppercase tracking-widest font-medium text-white/80 transition-colors duration-200 hover:text-white"
             >
-              {link.label}
+              {hoveredIndex === idx && (
+                <motion.div
+                  layoutId="navbar-hover-pill"
+                  className="absolute inset-0 rounded-full bg-white/15 backdrop-blur-md border border-white/20"
+                  transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10">{link.label}</span>
             </a>
           ))}
-          <Button
-            nativeButton={false}
-            className="rounded-full bg-accent px-5 font-sans text-sm font-semibold text-accent-foreground transition-all duration-300 hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/20"
-            render={
-              <a href="tel:+919847151674" />
-            }
-          >
-            <Phone className="mr-1.5 h-3.5 w-3.5" />
-            Book Now
-          </Button>
         </nav>
 
-        {/* ── Mobile Toggle ── */}
+        {/* ── Desktop CTA Button ── */}
+        <div className="hidden md:flex items-center gap-3 relative z-10">
+          <Button
+            nativeButton={false}
+            className="group relative overflow-hidden rounded-full bg-gradient-to-r from-[#f4c066] via-[#e5b053] to-[#d49a37] px-6 py-2 font-sans text-xs font-semibold uppercase tracking-wider text-black transition-all duration-300 hover:shadow-[0_0_20px_rgba(244,192,102,0.4)] hover:scale-105 border border-amber-200/40"
+            render={<a href="tel:+919847151674" />}
+          >
+            <span className="absolute inset-0 bg-white/30 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+            <span className="relative z-10 flex items-center gap-1.5">
+              <Phone className="h-3.5 w-3.5 fill-black/20" />
+              Book Now
+            </span>
+          </Button>
+        </div>
+
+        {/* ── Mobile Toggle Button ── */}
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className={`flex items-center justify-center rounded-lg p-2 transition-colors md:hidden ${
-            isScrolled
-              ? "text-foreground hover:bg-muted"
-              : "text-white hover:bg-white/10"
-          }`}
+          className="relative z-10 flex items-center justify-center rounded-full p-2 text-white/90 bg-white/10 border border-white/15 transition-all hover:bg-white/20 md:hidden"
           aria-label="Toggle navigation menu"
         >
           {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {/* ── Mobile Menu ── */}
+      {/* ── Mobile Menu Dropdown ── */}
       <AnimatePresence>
         {isMobileOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden border-b border-border bg-background/95 backdrop-blur-xl md:hidden"
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="pointer-events-auto mx-auto mt-2 max-w-sm overflow-hidden rounded-2xl border border-white/15 bg-black/80 backdrop-blur-2xl p-4 shadow-2xl md:hidden"
           >
-            <nav className="section-container flex flex-col gap-1 py-4">
+            <nav className="flex flex-col gap-2">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMobileOpen(false)}
-                  className="rounded-lg px-4 py-3 font-sans text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-accent"
+                  className="rounded-xl px-4 py-2.5 font-sans text-sm font-medium text-white/90 transition-all hover:bg-white/10 hover:text-white hover:pl-6"
                 >
                   {link.label}
                 </a>
               ))}
-              <div className="mt-2 px-4">
+              <div className="mt-2 pt-2 border-t border-white/10">
                 <Button
                   nativeButton={false}
-                  className="w-full rounded-full bg-accent font-sans text-sm font-semibold text-accent-foreground"
-                  render={
-                    <a href="tel:+919847151674" />
-                  }
+                  className="w-full rounded-xl bg-gradient-to-r from-[#f4c066] to-[#d49a37] py-2.5 font-sans text-sm font-semibold text-black shadow-lg"
+                  render={<a href="tel:+919847151674" />}
                 >
-                  <Phone className="mr-1.5 h-3.5 w-3.5" />
+                  <Phone className="mr-2 h-4 w-4" />
                   Book Now
                 </Button>
               </div>

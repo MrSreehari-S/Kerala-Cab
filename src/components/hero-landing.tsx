@@ -512,54 +512,6 @@ function FadingScrollIndicator({
   );
 }
 
-/** Minimal corner section counter — replaces the old frame-number HUD.
- *  Purely presentational; derives its value from the same scrollYProgress
- *  motion value the canvas already uses, no new scroll logic. */
-function SectionCounter({
-  scrollProgress,
-  totalSections,
-}: {
-  scrollProgress: MotionValue<number>;
-  totalSections: number;
-}) {
-  const sectionDisplay = useTransform(scrollProgress, (p) => {
-    let idx = 0;
-    for (let i = 0; i < STORY_BEATS.length; i++) {
-      if (p >= STORY_BEATS[i].start) idx = i;
-    }
-    return idx + 1;
-  });
-
-  return (
-    <div
-      className="absolute pointer-events-none flex items-center gap-2"
-      style={{ top: 28, right: 32, zIndex: 20 }}
-      aria-hidden
-    >
-      <motion.span
-        style={{
-          color: "rgba(255,255,255,0.85)",
-          fontFamily: "monospace",
-          fontSize: "0.7rem",
-          letterSpacing: "0.08em",
-        }}
-      >
-        {sectionDisplay}
-      </motion.span>
-      <span style={{ width: 12, height: 1, backgroundColor: "rgba(255,255,255,0.3)" }} />
-      <span
-        style={{
-          color: "rgba(255,255,255,0.35)",
-          fontFamily: "monospace",
-          fontSize: "0.7rem",
-          letterSpacing: "0.08em",
-        }}
-      >
-        0{totalSections}
-      </span>
-    </div>
-  );
-}
 
 function LoadingScrim({ progress }: { progress: number }) {
   return (
@@ -888,8 +840,6 @@ export function HeroLanding() {
                   />
                 ))}
               </div>
-
-              <SectionCounter scrollProgress={scrollYProgress} totalSections={STORY_BEATS.length} />
 
               <FadingScrollIndicator
                 scrollProgress={scrollYProgress}

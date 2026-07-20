@@ -56,17 +56,26 @@ export function FooterSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <div className="mb-4">
+              <div className="mb-4 flex items-center gap-3.5">
                 <Image
-                  src="/logo.jpeg"
+                  src="/images/logo-nobg.webp"
                   alt="KeralaCabs Logo"
-                  width={140}
-                  height={47}
-                  className="h-12 w-auto object-contain rounded-md"
+                  width={86}
+                  height={86}
+                  className="h-14 w-auto object-contain rounded-md"
                 />
+                <h1
+                  className="font-serif italic font-bold text-white tracking-tight leading-none drop-shadow-2xl"
+                  style={{
+                    fontSize: "clamp(2rem, 4vw, 3.25rem)",
+                    fontFamily: "'Instrument Serif', 'Playfair Display', Georgia, serif",
+                  }}
+                >
+                  Kerala <span className="text-gold-gradient font-light">Cabs</span>
+                </h1>
               </div>
               <p className="mb-6 max-w-sm font-sans text-sm font-semibold leading-relaxed text-accent">
-                Rent A Car (Govt. Approved) • Taxi Service • Luxury Wedding Cars • Traveller & Bus
+                Rent A Car • Luxury Wedding Cars • Traveller & Bus
               </p>
 
               <div className="space-y-3 font-sans text-sm text-primary-foreground/70">
