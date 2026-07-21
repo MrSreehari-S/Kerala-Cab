@@ -1,0 +1,20 @@
+# KeralaCabs
+
+> Premium Car Rentals in Kerala, India
+
+KeralaCabs provides luxury self-drive car rentals, chauffeur-driven tours, and premium wedding car services across Kerala. We offer a high-end fleet for tourists, locals, and special events.
+
+## Key Services
+
+- **Self-Drive Rentals:** Rent premium cars to explore Kerala at your own pace.
+- **Chauffeur-Driven Tours:** Hire a luxury vehicle with an experienced professional driver.
+- **Wedding Cars:** Premium cars available for weddings and special events, especially in Kochi and surrounding areas.
+
+## Site Structure
+
+- **Home (`/`)**: Main landing page, overview of services and fleet.
+- **Fleet (`/fleet`)**: Browse our full collection of available premium cars, their features, and booking options.
+- **Contact (`/contact`)**: Reach out to us for bookings, inquiries, and customer support.
+
+## Contact Information
+You can book a car or reach us by navigating to `https://www.keralacabs.in/contact`.

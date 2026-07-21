@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Phone, MapPin } from "lucide-react";
 import Image from "next/image";
@@ -102,13 +103,7 @@ export function HeroSection({ onExploreFleet }: HeroSectionProps) {
               nativeButton={false}
               variant="outline"
               className="rounded-full border-white/20 px-8 py-3 font-sans text-sm text-white bg-black backdrop-blur-sm transition-all duration-300 hover:border-accent/50 hover:bg-white/10 h-auto"
-              render={
-                <a
-                  href="https://wa.me/918848228458?text=Hello%20KeralaCabs,%20I%20would%20like%20to%20enquire%20about%20a%20car%20rental."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                />
-              }
+              render={<Link href="/contact" />}
             >
               <Phone className="mr-2 h-4 w-4 " />
               Contact Concierge

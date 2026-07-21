@@ -104,7 +104,7 @@ export function BookingModal({ car, isOpen, onClose }: BookingModalProps) {
 • Email: ${data.email}`;
 
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/918848228458?text=${encodedMessage}`;
+    const whatsappUrl = `https://wa.me/917012436857?text=${encodedMessage}`;
 
     // Open WhatsApp secure chat
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");

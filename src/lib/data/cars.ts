@@ -85,3 +85,119 @@ export async function getAdminCarsDirect(): Promise<FetchCarsResult> {
     return { cars: [], dbError: true };
   }
 }
+
+/* ── Server-Side Paginated Fetcher ─────────────────────────────────────────── */
+
+export interface PaginatedCarsParams {
+  page?: number;
+  limit?: number;
+  category?: string;
+  sort?: string;
+  q?: string;
+}
+
+export interface PaginatedCarsResult {
+  cars: Car[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  dbError: boolean;
+}
+
+/**
+ * Server-side paginated car fetcher.
+ * Pushes filtering, sorting, and pagination into MongoDB queries
+ * so only the needed slice of data is transferred.
+ */
+export async function getCarsPaginated(
+  params: PaginatedCarsParams = {}
+): Promise<PaginatedCarsResult> {
+  const {
+    page = 1,
+    limit = 8,
+    category = "all",
+    sort = "price-asc",
+    q = "",
+  } = params;
+
+  const safePage = Math.max(1, page);
+  const safeLimit = Math.min(Math.max(1, limit), 50);
+
+  try {
+    const db = await getDb();
+    const collection = db.collection("cars");
+
+    // Build filter
+    const filter: Record<string, unknown> = {};
+
+    if (category && category !== "all") {
+      filter.category = category;
+    }
+
+    if (q.trim()) {
+      // Case-insensitive regex search across name, tagline, category
+      const escapedQ = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      filter.$or = [
+        { name: { $regex: escapedQ, $options: "i" } },
+        { tagline: { $regex: escapedQ, $options: "i" } },
+        { category: { $regex: escapedQ, $options: "i" } },
+        { transmission: { $regex: escapedQ, $options: "i" } },
+        { fuelType: { $regex: escapedQ, $options: "i" } },
+      ];
+    }
+
+    // Build sort
+    let sortSpec: Record<string, 1 | -1>;
+    switch (sort) {
+      case "price-desc":
+        sortSpec = { pricePerDay: -1 };
+        break;
+      case "name-asc":
+        sortSpec = { name: 1 };
+        break;
+      case "seats-desc":
+        sortSpec = { seats: -1 };
+        break;
+      case "price-asc":
+      default:
+        sortSpec = { pricePerDay: 1 };
+        break;
+    }
+
+    // Run count + paginated find in parallel
+    const skip = (safePage - 1) * safeLimit;
+
+    const [total, docs] = await Promise.all([
+      collection.countDocuments(filter),
+      collection
+        .find(filter)
+        .sort(sortSpec)
+        .skip(skip)
+        .limit(safeLimit)
+        .toArray(),
+    ]);
+
+    const totalPages = Math.ceil(total / safeLimit);
+
+    return {
+      cars: docs.map(serializeCarDoc),
+      total,
+      page: safePage,
+      limit: safeLimit,
+      totalPages,
+      dbError: false,
+    };
+  } catch (error) {
+    console.error("[getCarsPaginated] Failed:", error);
+    return {
+      cars: [],
+      total: 0,
+      page: safePage,
+      limit: safeLimit,
+      totalPages: 0,
+      dbError: true,
+    };
+  }
+}
+

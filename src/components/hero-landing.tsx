@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useScroll, useTransform, motion, MotionValue } from "motion/react";
+import { useScroll, useTransform, motion, MotionValue, AnimatePresence } from "motion/react";
 import { ArrowRight, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -50,11 +50,11 @@ const BASE_PATH = stripTrailingSlash(
  * main thread and delay interactivity on lower-end devices regardless of
  * network speed.
  */
-const PRIORITY_FRAME_COUNT = 24;
+const PRIORITY_FRAME_COUNT = 4;
 /** Priority window shrinks to this on slow/metered connections, where
  *  round-trip latency (not just bandwidth) makes a large parallel batch
  *  costly. */
-const PRIORITY_FRAME_COUNT_SLOW = 8;
+const PRIORITY_FRAME_COUNT_SLOW = 2;
 
 const MAX_RETRIES_PER_FRAME = 2;
 const RETRY_BASE_DELAY_MS = 700;
@@ -514,31 +514,36 @@ function FadingScrollIndicator({
 
 
 function LoadingScrim({ progress }: { progress: number }) {
+  const [fakeProgress, setFakeProgress] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFakeProgress((prev) => (prev < 15 ? prev + 1 : prev));
+    }, 250);
+    return () => clearInterval(interval);
+  }, []);
+
+  const displayProgress = Math.max(fakeProgress, Math.round(progress * 100));
+
   return (
-    <div
-      className="absolute inset-0 flex items-center justify-center"
-      style={{ zIndex: 30, backgroundColor: "#050505" }}
+    <motion.div
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.8, ease: "easeInOut" }}
+      className="absolute inset-0 flex items-center justify-center z-50"
+      style={{ backgroundColor: "#050505" }}
       role="status"
       aria-live="polite"
     >
-      <div className="flex flex-col items-center gap-4">
-        <div
-          style={{
-            width: 26,
-            height: 26,
-            borderRadius: "50%",
-            border: "1.5px solid rgba(244,192,102,0.2)",
-            borderTopColor: "#f4c066",
-            animation: "hero-spin 0.9s linear infinite",
-          }}
-        />
-        <div className="flex flex-col items-center gap-1.5">
+      <div className="flex flex-col items-center gap-8 w-full max-w-[240px] px-6 ">
+        <div className="flex flex-col items-center gap-2">
           <span
             style={{
               color: "#ffffff",
               fontFamily: "'Instrument Serif', Georgia, serif",
-              fontSize: "1.1rem",
+              fontSize: "1.75rem",
               fontStyle: "italic",
+              letterSpacing: "0.02em",
             }}
           >
             Kerala Cabs
@@ -547,17 +552,43 @@ function LoadingScrim({ progress }: { progress: number }) {
             style={{
               color: "rgba(255,255,255,0.4)",
               fontFamily: "'Inter', sans-serif",
-              fontSize: "0.62rem",
-              letterSpacing: "0.22em",
+              fontSize: "0.65rem",
+              letterSpacing: "0.25em",
               textTransform: "uppercase",
             }}
           >
-            {Math.round(progress * 100)}%
+            Preparing Experience
           </span>
         </div>
+
+        {/* Modern progress bar container */}
+        <div className="relative w-full h-[2px] bg-white/10 overflow-hidden rounded-full">
+          {/* Indeterminate moving highlight */}
+          <motion.div
+            className="absolute top-0 bottom-0 left-0 bg-[#f4c066]"
+            initial={{ width: "0%", x: "-100%" }}
+            animate={{ width: ["20%", "40%", "20%"], x: ["-100%", "250%", "250%"] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          />
+          {/* Real progress line */}
+          <div
+            className="absolute top-0 bottom-0 left-0 bg-white/40 transition-all duration-300"
+            style={{ width: `${displayProgress}%` }}
+          />
+        </div>
+
+        <div
+          style={{
+            color: "rgba(255,255,255,0.8)",
+            fontFamily: "'Inter', sans-serif",
+            fontSize: "0.75rem",
+            letterSpacing: "0.1em",
+          }}
+        >
+          {displayProgress}%
+        </div>
       </div>
-      <style>{`@keyframes hero-spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
+    </motion.div>
   );
 }
 
@@ -660,25 +691,20 @@ function InitialHeroTitle({
 
         {/* ── CTAs matching hero.tsx ── */}
         <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 pointer-events-auto">
-          <Link href="/fleet">
-            <Button
-              className="group rounded-full bg-[#f4c066] px-8 py-3 font-sans text-sm font-semibold text-black transition-all duration-300 hover:bg-white hover:text-black hover:shadow-xl hover:shadow-[#f4c066]/20 h-auto"
-            >
-              Browse Our Fleet
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Button>
-          </Link>
+          <Button
+            nativeButton={false}
+            render={<Link href="/fleet" />}
+            className="group rounded-full bg-[#f4c066] px-8 py-3 font-sans text-sm font-semibold text-black transition-all duration-300 hover:bg-white hover:text-black hover:shadow-xl hover:shadow-[#f4c066]/20 h-auto"
+          >
+            Browse Our Fleet
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </Button>
 
           <Button
+            nativeButton={false}
             variant="outline"
             className="rounded-full border-white/20 px-8 py-3 font-sans text-sm text-white bg-black/60 backdrop-blur-md transition-all duration-300 hover:border-[#f4c066]/50 hover:bg-white/10 h-auto"
-            render={
-              <a
-                href="https://wa.me/918848228458?text=Hello%20KeralaCabs,%20I%20would%20like%20to%20enquire%20about%20a%20car%20rental."
-                target="_blank"
-                rel="noopener noreferrer"
-              />
-            }
+            render={<Link href="/contact" />}
           >
             <Phone className="mr-2 h-4 w-4 text-[#f4c066]" />
             Contact Concierge
@@ -689,7 +715,11 @@ function InitialHeroTitle({
   );
 }
 
-export function HeroLanding() {
+interface HeroLandingProps {
+  onLoadingChange?: (isLoading: boolean) => void;
+}
+
+export function HeroLanding({ onLoadingChange }: HeroLandingProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -698,6 +728,12 @@ export function HeroLanding() {
 
   const [canvasSupported, setCanvasSupported] = useState(true);
   const reducedMotion = useReducedMotion();
+
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setMinTimeElapsed(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const { status, progress, framesRef, loadedRef } = useFrameSequence(
     TOTAL_FRAMES,
@@ -767,14 +803,16 @@ export function HeroLanding() {
     };
   }, [scrollYProgress, drawFrame]);
 
-  const showLoadingScrim = status === "loading" && progress < 1 && currentFrameRef.current === 0;
+  const showLoadingScrim = (status === "loading" && progress < 1 && currentFrameRef.current === 0) || !minTimeElapsed;
   const showFallback = !canvasSupported || status === "error";
+
+  useEffect(() => {
+    onLoadingChange?.(showLoadingScrim);
+  }, [showLoadingScrim, onLoadingChange]);
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Barlow:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap');
-
         .text-gold-gradient {
           background: linear-gradient(135deg, #ffffff 0%, #f4c066 50%, #d49a37 100%);
           -webkit-background-clip: text;
@@ -811,7 +849,9 @@ export function HeroLanding() {
                 }}
               />
 
-              {showLoadingScrim && <LoadingScrim progress={progress} />}
+              <AnimatePresence>
+                {showLoadingScrim && <LoadingScrim progress={progress} />}
+              </AnimatePresence>
 
               <div
                 aria-hidden

@@ -21,6 +21,7 @@ interface HomeClientProps {
 export function HomeClient({ cars, dbError = false }: HomeClientProps) {
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [heroLoading, setHeroLoading] = useState(true);
   const fleetRef = useRef<HTMLDivElement>(null);
 
   const handleBookCar = useCallback((car: Car) => {
@@ -39,7 +40,7 @@ export function HomeClient({ cars, dbError = false }: HomeClientProps) {
 
   return (
     <SmoothScrollProvider>
-      <Navbar />
+      <Navbar hidden={heroLoading} />
 
       {/* ── DB Error Banner ── */}
       {dbError && (
@@ -53,7 +54,7 @@ export function HomeClient({ cars, dbError = false }: HomeClientProps) {
       )}
 
       <main className="flex-1">
-        <HeroLanding />
+        <HeroLanding onLoadingChange={setHeroLoading} />
         {/* <HeroSection onExploreFleet={handleExploreFleet} /> */}
 
         <div ref={fleetRef}>

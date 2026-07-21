@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Fuse from "fuse.js";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Search,
-  SlidersHorizontal,
   ArrowUpDown,
   Car as CarIcon,
   X,
@@ -25,10 +23,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CarCard } from "@/components/car-card";
+import { CarDetailModal } from "@/components/car-detail-modal";
 import { Navbar } from "@/components/sections/navbar";
 import { FooterSection } from "@/components/sections/footer";
 import { BookingModal } from "@/components/sections/booking-modal";
-import type { Car, CarCategory } from "@/data/cars";
+import type { Car } from "@/data/cars";
 
 const categories: { value: string; label: string }[] = [
   { value: "all", label: "All Cars" },
@@ -49,76 +48,71 @@ const sortOptions: { value: SortOption; label: string }[] = [
 
 interface FleetPageClientProps {
   cars: Car[];
+  total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
   dbError?: boolean;
 }
 
-export function FleetPageClient({ cars, dbError = false }: FleetPageClientProps) {
+export function FleetPageClient({
+  cars,
+  total = 0,
+  page = 1,
+  totalPages = 1,
+  dbError = false,
+}: FleetPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Read initial state from URL params
-  const initialCategory = searchParams.get("category") || "all";
-  const initialSearch = searchParams.get("q") || "";
-  const initialSort = (searchParams.get("sort") || "price-asc") as SortOption;
-  const initialPage = Number(searchParams.get("page") || "1");
+  // URL state
+  const activeCategory = searchParams.get("category") || "all";
+  const searchQueryParam = searchParams.get("q") || "";
+  const sortBy = (searchParams.get("sort") || "price-asc") as SortOption;
 
-  const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [activeCategory, setActiveCategory] = useState(initialCategory);
-  const [sortBy, setSortBy] = useState<SortOption>(initialSort);
-  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [searchInput, setSearchInput] = useState(searchQueryParam);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
+  const [selectedDetailCar, setSelectedDetailCar] = useState<Car | null>(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
   const gridRef = useRef<HTMLDivElement>(null);
 
-  // Fuse.js fuzzy search instance
-  const fuse = useMemo(
-    () =>
-      new Fuse(cars, {
-        keys: ["name", "tagline", "category", "transmission", "fuelType"],
-        threshold: 0.4,
-        ignoreLocation: true,
-      }),
-    [cars]
-  );
+  // Sync search input with URL params
+  useEffect(() => {
+    setSearchInput(searchQueryParam);
+  }, [searchQueryParam]);
 
-  // Update URL params for shareable state
+  // Update URL params helper (triggers server-side page re-render)
   const updateUrl = useCallback(
     (cat: string, q: string, sort: SortOption, pageNum: number) => {
       const params = new URLSearchParams();
       if (cat !== "all") params.set("category", cat);
-      if (q) params.set("q", q);
+      if (q.trim()) params.set("q", q.trim());
       if (sort !== "price-asc") params.set("sort", sort);
       if (pageNum > 1) params.set("page", String(pageNum));
       const qs = params.toString();
-      router.replace(`/fleet${qs ? `?${qs}` : ""}`, { scroll: false });
+      router.push(`/fleet${qs ? `?${qs}` : ""}`, { scroll: false });
     },
     [router]
   );
 
   const handleCategoryChange = (cat: string | null) => {
     if (!cat) return;
-    setActiveCategory(cat);
-    setCurrentPage(1);
-    updateUrl(cat, searchQuery, sortBy, 1);
+    updateUrl(cat, searchInput, sortBy, 1);
   };
 
-  const handleSearchChange = (q: string) => {
-    setSearchQuery(q);
-    setCurrentPage(1);
+  const handleSearchSubmit = (q: string) => {
+    setSearchInput(q);
     updateUrl(activeCategory, q, sortBy, 1);
   };
 
   const handleSortChange = (sort: string | null) => {
     if (!sort) return;
-    setSortBy(sort as SortOption);
-    setCurrentPage(1);
-    updateUrl(activeCategory, searchQuery, sort as SortOption, 1);
+    updateUrl(activeCategory, searchInput, sort as SortOption, 1);
   };
 
   const handlePageChange = (pageNum: number) => {
-    setCurrentPage(pageNum);
-    updateUrl(activeCategory, searchQuery, sortBy, pageNum);
+    updateUrl(activeCategory, searchInput, sortBy, pageNum);
 
     // Smooth scroll back to grid top
     if (gridRef.current) {
@@ -141,63 +135,12 @@ export function FleetPageClient({ cars, dbError = false }: FleetPageClientProps)
   }, []);
 
   const clearFilters = () => {
-    setSearchQuery("");
-    setActiveCategory("all");
-    setSortBy("price-asc");
-    setCurrentPage(1);
-    router.replace("/fleet", { scroll: false });
+    setSearchInput("");
+    router.push("/fleet", { scroll: false });
   };
 
-  // Filter → search → sort pipeline
-  const filteredCars = useMemo(() => {
-    let results = cars;
-
-    // Category filter
-    if (activeCategory !== "all") {
-      results = results.filter(
-        (car) => car.category === (activeCategory as CarCategory)
-      );
-    }
-
-    // Fuzzy search
-    if (searchQuery.trim()) {
-      const fuseResults = fuse.search(searchQuery);
-      const searchIds = new Set(fuseResults.map((r) => r.item.id));
-      results = results.filter((car) => searchIds.has(car.id));
-    }
-
-    // Sort
-    const sorted = [...results];
-    switch (sortBy) {
-      case "price-asc":
-        sorted.sort((a, b) => a.pricePerDay - b.pricePerDay);
-        break;
-      case "price-desc":
-        sorted.sort((a, b) => b.pricePerDay - a.pricePerDay);
-        break;
-      case "name-asc":
-        sorted.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "seats-desc":
-        sorted.sort((a, b) => b.seats - a.seats);
-        break;
-    }
-
-    return sorted;
-  }, [cars, activeCategory, searchQuery, sortBy, fuse]);
-
-  // Pagination Constants
-  const pageSize = 8;
-  const totalPages = Math.ceil(filteredCars.length / pageSize);
-
-  // Paginated cars slice
-  const paginatedCars = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredCars.slice(start, start + pageSize);
-  }, [filteredCars, currentPage]);
-
   const hasActiveFilters =
-    activeCategory !== "all" || searchQuery.trim() !== "" || sortBy !== "price-asc";
+    activeCategory !== "all" || searchQueryParam.trim() !== "" || sortBy !== "price-asc";
 
   return (
     <>
@@ -264,15 +207,13 @@ export function FleetPageClient({ cars, dbError = false }: FleetPageClientProps)
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Search by name, brand, type..."
-                  value={searchQuery}
-                  onChange={(e) =>
-                    handleSearchChange((e.target as HTMLInputElement).value)
-                  }
+                  value={searchInput}
+                  onChange={(e) => handleSearchSubmit((e.target as HTMLInputElement).value)}
                   className="pl-10 font-sans"
                 />
-                {searchQuery && (
+                {searchInput && (
                   <button
-                    onClick={() => handleSearchChange("")}
+                    onClick={() => handleSearchSubmit("")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-muted-foreground hover:text-foreground"
                   >
                     <X className="h-3.5 w-3.5" />
@@ -329,18 +270,17 @@ export function FleetPageClient({ cars, dbError = false }: FleetPageClientProps)
                     <X className="h-3 w-3" />
                   </Badge>
                 )}
-                {searchQuery && (
+                {searchQueryParam && (
                   <Badge
                     className="cursor-pointer gap-1 font-sans text-xs"
-                    onClick={() => handleSearchChange("")}
+                    onClick={() => handleSearchSubmit("")}
                   >
-                    &ldquo;{searchQuery}&rdquo;
+                    &ldquo;{searchQueryParam}&rdquo;
                     <X className="h-3 w-3" />
                   </Badge>
                 )}
                 <span className="font-sans text-xs text-muted-foreground">
-                  — {filteredCars.length}{" "}
-                  {filteredCars.length === 1 ? "car" : "cars"}
+                  — {total} {total === 1 ? "car" : "cars"}
                 </span>
               </div>
             )}
@@ -376,29 +316,34 @@ export function FleetPageClient({ cars, dbError = false }: FleetPageClientProps)
                   Retry
                 </Button>
               </motion.div>
-            ) : paginatedCars.length > 0 ? (
+            ) : cars.length > 0 ? (
               <div className="space-y-16">
                 <motion.div
-                  key={`${activeCategory}-${searchQuery}-${sortBy}-${currentPage}`}
+                  key={`${activeCategory}-${searchQueryParam}-${sortBy}-${page}`}
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.3 }}
                   className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                 >
-                  {paginatedCars.map((car) => (
-                    <CarCard key={car.id} car={car} onBook={handleBookCar} />
+                  {cars.map((car) => (
+                    <CarCard
+                      key={car.id}
+                      car={car}
+                      onBook={handleBookCar}
+                      onViewDetail={(c) => setSelectedDetailCar(c)}
+                    />
                   ))}
                 </motion.div>
 
-                {/* ── Pagination Controls ── */}
+                {/* ── Server-Side Pagination Controls ── */}
                 {totalPages > 1 && (
                   <div className="flex items-center justify-center gap-2 pt-8">
                     {/* Prev Button */}
                     <Button
                       variant="outline"
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
+                      onClick={() => handlePageChange(page - 1)}
+                      disabled={page === 1}
                       className="rounded-full px-4 text-xs font-sans font-semibold border-border/80 hover:bg-muted"
                     >
                       <ChevronLeft className="mr-1 h-4 w-4" />
@@ -412,7 +357,7 @@ export function FleetPageClient({ cars, dbError = false }: FleetPageClientProps)
                           key={pageNum}
                           onClick={() => handlePageChange(pageNum)}
                           className={`h-9 w-9 rounded-full font-sans text-xs font-bold transition-all duration-300 ${
-                            currentPage === pageNum
+                            page === pageNum
                               ? "bg-accent text-accent-foreground scale-105"
                               : "bg-card border border-border/40 hover:bg-muted text-muted-foreground hover:text-foreground"
                           }`}
@@ -425,8 +370,8 @@ export function FleetPageClient({ cars, dbError = false }: FleetPageClientProps)
                     {/* Next Button */}
                     <Button
                       variant="outline"
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
+                      onClick={() => handlePageChange(page + 1)}
+                      disabled={page === totalPages}
                       className="rounded-full px-4 text-xs font-sans font-semibold border-border/80 hover:bg-muted"
                     >
                       Next
@@ -468,12 +413,20 @@ export function FleetPageClient({ cars, dbError = false }: FleetPageClientProps)
 
       <FooterSection />
 
+      {/* ── Car Detail Modal (Images Gallery & Full Info) ── */}
+      <CarDetailModal
+        car={selectedDetailCar}
+        isOpen={!!selectedDetailCar}
+        onClose={() => setSelectedDetailCar(null)}
+        onBook={handleBookCar}
+      />
+
+      {/* ── Reservation Booking Modal ── */}
       <BookingModal
         car={selectedCar}
         isOpen={isBookingOpen}
         onClose={handleCloseBooking}
       />
-
     </>
   );
 }

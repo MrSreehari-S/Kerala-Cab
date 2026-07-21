@@ -135,7 +135,6 @@ export default function AdminLoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@keralacabs.com"
                   value={email}
                   onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
                   className="pl-10 font-sans"
@@ -158,7 +157,6 @@ export default function AdminLoginPage() {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
                   value={password}
                   onChange={(e) =>
                     setPassword((e.target as HTMLInputElement).value)
