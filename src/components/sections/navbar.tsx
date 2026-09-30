@@ -68,7 +68,7 @@ export function Navbar({ hidden = false }: NavbarProps = {}) {
               priority
             />
           </div>
-          <span className="font-serif italic font-semibold text-lg md:text-xl text-white tracking-tight leading-none hidden sm:inline-block">
+          <span className="font-serif italic font-semibold text-lg md:text-xl text-white tracking-tight leading-none ">
             Kerala <span className="text-gold-gradient font-light">Cabs</span>
           </span>
         </Link>

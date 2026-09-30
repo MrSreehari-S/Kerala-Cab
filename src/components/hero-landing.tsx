@@ -26,6 +26,15 @@ import Link from "next/link";
 const TOTAL_FRAMES = 193;
 const FRAME_EXT = "jpg";
 
+/**
+ * PHONE-ONLY background (below the `md` breakpoint).
+ * Uses the local mobile hero asset so Next.js does not need an image-domain config.
+ */
+const MOBILE_BG_URL = "/images/hero-sm.webp";
+
+/** Which part of the photo stays visible on phones. */
+const MOBILE_BG_POSITION = "center center";
+
 /** Strip any trailing slash so we don't end up with `//` in paths. */
 const stripTrailingSlash = (p: string) => p.replace(/\/+$/, "");
 
@@ -113,6 +122,31 @@ function useReducedMotion(): boolean {
   return reduced;
 }
 
+function useIsMobileViewport(): boolean {
+  // Always start as `false` — this matches the SSR output (no window on server).
+  // useEffect below sets the real value after hydration so both trees agree
+  // on the first render, preventing the hydration mismatch.
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+
+    const mql = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mql.matches);
+    update();
+
+    if (mql.addEventListener) mql.addEventListener("change", update);
+    else if ("addListener" in mql) (mql as any).addListener(update);
+
+    return () => {
+      if (mql.removeEventListener) mql.removeEventListener("change", update);
+      else if ("removeListener" in mql) (mql as any).removeListener(update);
+    };
+  }, []);
+
+  return isMobile;
+}
+
 /** Walk outward from targetIndex to find the nearest frame that's actually
  *  decoded and ready to paint. Prevents flicker/blank canvas when the user
  *  scrolls ahead of what's loaded, or when an individual frame failed. */
@@ -154,7 +188,11 @@ interface FrameSequenceHandle {
   loadedRef: React.MutableRefObject<boolean[]>;
 }
 
-function useFrameSequence(totalFrames: number, basePath: string): FrameSequenceHandle {
+function useFrameSequence(
+  totalFrames: number,
+  basePath: string,
+  enabled = true
+): FrameSequenceHandle {
   const framesRef = useRef<Array<HTMLImageElement | null>>(
     new Array(totalFrames).fill(null)
   );
@@ -163,6 +201,14 @@ function useFrameSequence(totalFrames: number, basePath: string): FrameSequenceH
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    if (!enabled) {
+      framesRef.current = new Array(totalFrames).fill(null);
+      loadedRef.current = new Array(totalFrames).fill(false);
+      setProgress(1);
+      setStatus("ready");
+      return;
+    }
+
     if (totalFrames <= 0 || !basePath) {
       setStatus("error");
       return;
@@ -249,7 +295,7 @@ function useFrameSequence(totalFrames: number, basePath: string): FrameSequenceH
     return () => {
       cancelled = true;
     };
-  }, [totalFrames, basePath]);
+  }, [totalFrames, basePath, enabled]);
 
   return { status, progress, framesRef, loadedRef };
 }
@@ -640,6 +686,7 @@ function FallbackHero() {
   );
 }
 
+/* ── md and up: original hero title, unchanged ── */
 function InitialHeroTitle({
   scrollProgress,
 }: {
@@ -715,6 +762,65 @@ function InitialHeroTitle({
   );
 }
 
+/* ── Phones only (below md): static car photo background ── */
+function MobileHeroBackground() {
+  return (
+    <div
+      aria-hidden
+      className="absolute inset-0 z-[1] md:hidden pointer-events-none"
+      style={{
+        backgroundColor: "#050505",
+        backgroundImage: `url("${MOBILE_BG_URL}")`,
+        backgroundSize: "cover",
+        backgroundPosition: MOBILE_BG_POSITION,
+        backgroundRepeat: "no-repeat",
+      }}
+    />
+  );
+}
+
+/* ── Phones only (below md): single-screen landing hero ── */
+function MobileHeroTitle() {
+  return (
+    <div className="absolute inset-0 z-[25] md:hidden pointer-events-none">
+      {/* Gradient: stronger at top (brand) and bottom (heading), light in middle so the image breathes. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(5,5,5,0.72) 0%, rgba(5,5,5,0.10) 30%, rgba(5,5,5,0.04) 52%, rgba(5,5,5,0.72) 78%, rgba(5,5,5,0.97) 100%)",
+        }}
+      />
+
+      {/* ── TOP: brand name + tagline (sits below navbar) ── */}
+      <div className="absolute inset-x-0 top-0 px-5 pt-24 sm:px-6 sm:pt-28">
+        <div className="font-serif italic font-bold text-white tracking-tight leading-none text-[3.55rem] sm:text-[4.0rem] drop-shadow-xl">
+          Kerala <span className="text-gold-gradient font-light">Cabs</span>
+        </div>
+        <p className="mt-1.5 font-sans text-[9px] sm:text-[10px] font-light uppercase tracking-[0.2em] text-white/65">
+          Chauffeur-Driven Luxury Fleet
+        </p>
+      </div>
+
+      {/* ── BOTTOM: main heading + description ── */}
+      <div className="absolute inset-x-0 bottom-0 px-5 pb-8 sm:px-6 sm:pb-10">
+        <div className="max-w-[360px]">
+          <h1 className="font-serif italic font-bold tracking-tight text-white leading-[0.93] drop-shadow-2xl text-[3.65rem] sm:text-[4.4rem]">
+            Where Every
+            <br />
+            Road Tells a Story
+          </h1>
+
+          <p className="mt-4 max-w-[320px] font-sans text-[13px] sm:text-sm font-light leading-[1.55] text-white/72">
+            Premium chauffeur-driven cab services across Kerala's finest destinations.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface HeroLandingProps {
   onLoadingChange?: (isLoading: boolean) => void;
 }
@@ -728,6 +834,7 @@ export function HeroLanding({ onLoadingChange }: HeroLandingProps = {}) {
 
   const [canvasSupported, setCanvasSupported] = useState(true);
   const reducedMotion = useReducedMotion();
+  const isMobile = useIsMobileViewport();
 
   const [minTimeElapsed, setMinTimeElapsed] = useState(false);
   useEffect(() => {
@@ -737,7 +844,8 @@ export function HeroLanding({ onLoadingChange }: HeroLandingProps = {}) {
 
   const { status, progress, framesRef, loadedRef } = useFrameSequence(
     TOTAL_FRAMES,
-    BASE_PATH
+    BASE_PATH,
+    !isMobile
   );
 
   const { scrollYProgress } = useScroll({
@@ -803,8 +911,13 @@ export function HeroLanding({ onLoadingChange }: HeroLandingProps = {}) {
     };
   }, [scrollYProgress, drawFrame]);
 
-  const showLoadingScrim = (status === "loading" && progress < 1 && currentFrameRef.current === 0) || !minTimeElapsed;
-  const showFallback = !canvasSupported || status === "error";
+  const showLoadingScrim =
+    !isMobile &&
+    ((status === "loading" && progress < 1 && currentFrameRef.current === 0) ||
+      !minTimeElapsed);
+
+  // The mobile experience is intentionally independent from the canvas engine.
+  const showFallback = !isMobile && (!canvasSupported || status === "error");
 
   useEffect(() => {
     onLoadingChange?.(showLoadingScrim);
@@ -820,12 +933,16 @@ export function HeroLanding({ onLoadingChange }: HeroLandingProps = {}) {
         }
       `}</style>
 
-      <div ref={containerRef} style={{ height: "400vh", position: "relative" }}>
+      <div
+        ref={containerRef}
+        className="h-[100svh] md:h-[400vh]"
+        style={{ position: "relative" }}
+      >
         <div
+          className="h-[100svh] md:h-screen"
           style={{
             position: "sticky",
             top: 0,
-            height: "100vh",
             width: "100%",
             overflow: "hidden",
             backgroundColor: "#050505",
@@ -837,17 +954,21 @@ export function HeroLanding({ onLoadingChange }: HeroLandingProps = {}) {
             <FallbackHero />
           ) : (
             <>
+              {/* md and up: scroll-driven frame canvas (hidden on phones) */}
               <canvas
                 ref={canvasRef}
+                className="hidden md:block"
                 style={{
                   position: "absolute",
                   inset: 0,
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
-                  display: "block",
                 }}
               />
+
+              {/* Phones only: static car photo */}
+              <MobileHeroBackground />
 
               <AnimatePresence>
                 {showLoadingScrim && <LoadingScrim progress={progress} />}
@@ -867,9 +988,18 @@ export function HeroLanding({ onLoadingChange }: HeroLandingProps = {}) {
                 }}
               />
 
-              <InitialHeroTitle scrollProgress={scrollYProgress} />
+              {/* Phones only */}
+              <MobileHeroTitle />
 
-              <div style={{ position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none" }}>
+              {/* md and up: original title, untouched */}
+              <div className="hidden md:block absolute inset-0 pointer-events-none">
+                <InitialHeroTitle scrollProgress={scrollYProgress} />
+              </div>
+
+              <div
+                className="hidden md:block"
+                style={{ position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none" }}
+              >
                 {STORY_BEATS.map((beat, index) => (
                   <BeatOverlay
                     key={beat.label}
@@ -881,10 +1011,13 @@ export function HeroLanding({ onLoadingChange }: HeroLandingProps = {}) {
                 ))}
               </div>
 
-              <FadingScrollIndicator
-                scrollProgress={scrollYProgress}
-                reducedMotion={reducedMotion}
-              />
+              {/* md and up only: collides with CTAs on phones */}
+              <div className="hidden md:block">
+                <FadingScrollIndicator
+                  scrollProgress={scrollYProgress}
+                  reducedMotion={reducedMotion}
+                />
+              </div>
             </>
           )}
         </div>
