@@ -6,9 +6,9 @@
 
 @theme inline {
   /* ── Premium Brand Typography ── */
-  --font-serif: var(--font-cormorant);
-  --font-sans: var(--font-manrope);
-  --font-heading: var(--font-cormorant);
+  --font-serif: inherit;
+  --font-sans: inherit;
+  --font-heading: inherit;
   --font-mono: var(--font-geist-mono);
 
   /* ── Design Token Aliases ── */
@@ -185,9 +185,9 @@
     @apply font-sans scroll-smooth;
   }
 
-  /* ── Premium Heading Typography ── */
+  /* ── Heading Typography ── */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif tracking-wide;
+    @apply font-sans tracking-wide;
     text-wrap: balance;
   }
 

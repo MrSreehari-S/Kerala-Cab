@@ -680,7 +680,7 @@ function InitialHeroTitle({
           className="font-serif italic font-bold text-white tracking-tight leading-none drop-shadow-2xl"
           style={{
             fontSize: "clamp(3.5rem, 10vw, 9rem)",
-            fontFamily: "'Instrument Serif', 'Playfair Display', Georgia, serif",
+            // fontFamily: "'Instrument Serif', 'Playfair Display', Georgia, serif",
           }}
         >
           Kerala <span className="text-gold-gradient font-light">Cabs</span>
