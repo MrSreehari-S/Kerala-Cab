@@ -17,6 +17,7 @@ interface FleetPageProps {
     category?: string;
     sort?: string;
     q?: string;
+    transmission?: string;
   }>;
 }
 
@@ -27,6 +28,7 @@ export default async function FleetPage({ searchParams }: FleetPageProps) {
   const category = resolvedParams.category || "all";
   const sort = resolvedParams.sort || "price-asc";
   const q = resolvedParams.q || "";
+  const transmission = resolvedParams.transmission || "";
 
   const result = await getCarsPaginated({
     page,
@@ -34,6 +36,7 @@ export default async function FleetPage({ searchParams }: FleetPageProps) {
     category,
     sort,
     q,
+    transmission,
   });
 
   const jsonLd = {

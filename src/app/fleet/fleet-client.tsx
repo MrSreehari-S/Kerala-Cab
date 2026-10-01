@@ -29,12 +29,10 @@ import { FooterSection } from "@/components/sections/footer";
 import { BookingModal } from "@/components/sections/booking-modal";
 import type { Car } from "@/data/cars";
 
-const categories: { value: string; label: string }[] = [
-  { value: "all", label: "All Cars" },
-  { value: "luxury", label: "Luxury" },
-  { value: "suv", label: "SUV" },
-  { value: "sedan", label: "Sedan" },
-  { value: "wedding", label: "Wedding" },
+const categories: { value: string; label: string; icon: string }[] = [
+  { value: "all", label: "Cab", icon: "🚕" },
+  { value: "sedan", label: "Rent a Car", icon: "🚗" },
+  { value: "luxury", label: "Luxury", icon: "✨" },
 ];
 
 type SortOption = "price-asc" | "price-desc" | "name-asc" | "seats-desc";
@@ -69,6 +67,7 @@ export function FleetPageClient({
   const activeCategory = searchParams.get("category") || "all";
   const searchQueryParam = searchParams.get("q") || "";
   const sortBy = (searchParams.get("sort") || "price-asc") as SortOption;
+  const transmissionFilter = searchParams.get("transmission") || "";
 
   const [searchInput, setSearchInput] = useState(searchQueryParam);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
@@ -84,12 +83,19 @@ export function FleetPageClient({
 
   // Update URL params helper (triggers server-side page re-render)
   const updateUrl = useCallback(
-    (cat: string, q: string, sort: SortOption, pageNum: number) => {
+    (
+      cat: string,
+      q: string,
+      sort: SortOption,
+      pageNum: number,
+      transmission: string
+    ) => {
       const params = new URLSearchParams();
       if (cat !== "all") params.set("category", cat);
       if (q.trim()) params.set("q", q.trim());
       if (sort !== "price-asc") params.set("sort", sort);
       if (pageNum > 1) params.set("page", String(pageNum));
+      if (transmission) params.set("transmission", transmission);
       const qs = params.toString();
       router.push(`/fleet${qs ? `?${qs}` : ""}`, { scroll: false });
     },
@@ -98,25 +104,38 @@ export function FleetPageClient({
 
   const handleCategoryChange = (cat: string | null) => {
     if (!cat) return;
-    updateUrl(cat, searchInput, sortBy, 1);
+    updateUrl(cat, searchInput, sortBy, 1, transmissionFilter);
+  };
+
+  const handleTransmissionToggle = (value: string) => {
+    // If already selected, clear the filter
+    const newTransmission = value === transmissionFilter ? "" : value;
+    updateUrl(activeCategory, searchInput, sortBy, 1, newTransmission);
   };
 
   const handleSearchSubmit = (q: string) => {
     setSearchInput(q);
-    updateUrl(activeCategory, q, sortBy, 1);
+    updateUrl(activeCategory, q, sortBy, 1, transmissionFilter);
   };
 
   const handleSortChange = (sort: string | null) => {
     if (!sort) return;
-    updateUrl(activeCategory, searchInput, sort as SortOption, 1);
+    updateUrl(
+      activeCategory,
+      searchInput,
+      sort as SortOption,
+      1,
+      transmissionFilter
+    );
   };
 
   const handlePageChange = (pageNum: number) => {
-    updateUrl(activeCategory, searchInput, sortBy, pageNum);
+    updateUrl(activeCategory, searchInput, sortBy, pageNum, transmissionFilter);
 
     // Smooth scroll back to grid top
     if (gridRef.current) {
-      const elementTop = gridRef.current.getBoundingClientRect().top + window.scrollY;
+      const elementTop =
+        gridRef.current.getBoundingClientRect().top + window.scrollY;
       window.scrollTo({
         top: elementTop - 110,
         behavior: "smooth",
@@ -140,7 +159,10 @@ export function FleetPageClient({
   };
 
   const hasActiveFilters =
-    activeCategory !== "all" || searchQueryParam.trim() !== "" || sortBy !== "price-asc";
+    activeCategory !== "all" ||
+    searchQueryParam.trim() !== "" ||
+    sortBy !== "price-asc" ||
+    transmissionFilter !== "";
 
   return (
     <>
@@ -177,23 +199,87 @@ export function FleetPageClient({
           </div>
         </section>
 
-        {/* ── Category Filter Pills ── */}
+        {/* ── Category Tabs + Transmission Toggle ── */}
         <section className="bg-background pt-12 pb-4">
           <div className="section-container">
-            <div className="flex flex-wrap justify-center gap-3">
-              {categories.map((cat) => (
+            <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center sm:gap-4">
+              {/* Category Tabs */}
+              <div className="flex flex-wrap justify-center gap-3">
+                {categories.map((cat) => (
+                  <button
+                    key={cat.value}
+                    onClick={() => handleCategoryChange(cat.value)}
+                    className={`group relative flex items-center gap-2 rounded-full px-7 py-3 font-sans text-xs font-bold uppercase tracking-wider transition-all duration-400 border ${
+                      activeCategory === cat.value
+                        ? "bg-accent text-accent-foreground border-accent shadow-lg shadow-accent/25 scale-[1.02]"
+                        : "bg-card border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground hover:border-border"
+                    }`}
+                  >
+                    <span className="text-sm">{cat.icon}</span>
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Divider */}
+              <div className="hidden h-8 w-px bg-border/60 sm:block" />
+
+              {/* Transmission Toggle */}
+              <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-card p-1.5">
                 <button
-                  key={cat.value}
-                  onClick={() => handleCategoryChange(cat.value)}
-                  className={`rounded-full px-6 py-2.5 font-sans text-xs font-semibold uppercase tracking-wider transition-all duration-300 border ${
-                    activeCategory === cat.value
-                      ? "bg-accent text-accent-foreground border-accent shadow-lg shadow-accent/25 scale-[1.02]"
-                      : "bg-card border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  onClick={() => handleTransmissionToggle("Automatic")}
+                  className={`flex items-center gap-1.5 rounded-full px-4 py-2 font-sans text-[11px] font-bold uppercase tracking-wider transition-all duration-300 ${
+                    transmissionFilter === "Automatic"
+                      ? "bg-accent text-accent-foreground shadow-md shadow-accent/20"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
                   }`}
                 >
-                  {cat.label}
+                  <svg
+                    className="h-3.5 w-3.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="2" y="6" width="20" height="12" rx="2" />
+                    <path d="M6 12h4" />
+                    <path d="M14 12h4" />
+                    <circle cx="8" cy="12" r="0.5" fill="currentColor" />
+                    <circle cx="16" cy="12" r="0.5" fill="currentColor" />
+                  </svg>
+                  Automatic
                 </button>
-              ))}
+                <button
+                  onClick={() => handleTransmissionToggle("Manual")}
+                  className={`flex items-center gap-1.5 rounded-full px-4 py-2 font-sans text-[11px] font-bold uppercase tracking-wider transition-all duration-300 ${
+                    transmissionFilter === "Manual"
+                      ? "bg-accent text-accent-foreground shadow-md shadow-accent/20"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  <svg
+                    className="h-3.5 w-3.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="8" cy="6" r="2" />
+                    <circle cx="16" cy="6" r="2" />
+                    <circle cx="8" cy="18" r="2" />
+                    <circle cx="16" cy="18" r="2" />
+                    <circle cx="12" cy="12" r="2" />
+                    <path d="M8 8v8" />
+                    <path d="M16 8v8" />
+                    <path d="M10 12h4" />
+                  </svg>
+                  Manual
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -208,7 +294,9 @@ export function FleetPageClient({
                 <Input
                   placeholder="Search by name, brand, type..."
                   value={searchInput}
-                  onChange={(e) => handleSearchSubmit((e.target as HTMLInputElement).value)}
+                  onChange={(e) =>
+                    handleSearchSubmit((e.target as HTMLInputElement).value)
+                  }
                   className="pl-10 font-sans"
                 />
                 {searchInput && (
@@ -270,6 +358,15 @@ export function FleetPageClient({
                     <X className="h-3 w-3" />
                   </Badge>
                 )}
+                {transmissionFilter && (
+                  <Badge
+                    className="cursor-pointer gap-1 font-sans text-xs"
+                    onClick={() => handleTransmissionToggle(transmissionFilter)}
+                  >
+                    {transmissionFilter}
+                    <X className="h-3 w-3" />
+                  </Badge>
+                )}
                 {searchQueryParam && (
                   <Badge
                     className="cursor-pointer gap-1 font-sans text-xs"
@@ -319,12 +416,12 @@ export function FleetPageClient({
             ) : cars.length > 0 ? (
               <div className="space-y-16">
                 <motion.div
-                  key={`${activeCategory}-${searchQueryParam}-${sortBy}-${page}`}
+                  key={`${activeCategory}-${searchQueryParam}-${sortBy}-${transmissionFilter}-${page}`}
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.3 }}
-                  className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
                 >
                   {cars.map((car) => (
                     <CarCard
@@ -352,7 +449,10 @@ export function FleetPageClient({
 
                     {/* Page Numbers */}
                     <div className="flex items-center gap-1.5">
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                      {Array.from(
+                        { length: totalPages },
+                        (_, i) => i + 1
+                      ).map((pageNum) => (
                         <button
                           key={pageNum}
                           onClick={() => handlePageChange(pageNum)}

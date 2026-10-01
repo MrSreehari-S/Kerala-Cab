@@ -1,4 +1,4 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -232,5 +232,19 @@
   .group:hover .img-zoom,
   .group\/card:hover .img-zoom {
     transform: scale(1.06);
+  }
+
+  /* Car card tile glow on hover */
+  .car-card-tile {
+    background: linear-gradient(
+      180deg,
+      var(--color-card) 0%,
+      color-mix(in oklch, var(--color-card) 95%, var(--color-accent) 5%) 100%
+    );
+  }
+  .car-card-tile:hover {
+    box-shadow:
+      0 8px 32px color-mix(in oklch, var(--color-accent) 12%, transparent 88%),
+      0 0 0 1px color-mix(in oklch, var(--color-accent) 25%, transparent 75%);
   }
 }

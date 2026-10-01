@@ -94,6 +94,7 @@ export interface PaginatedCarsParams {
   category?: string;
   sort?: string;
   q?: string;
+  transmission?: string;
 }
 
 export interface PaginatedCarsResult {
@@ -119,6 +120,7 @@ export async function getCarsPaginated(
     category = "all",
     sort = "price-asc",
     q = "",
+    transmission = "",
   } = params;
 
   const safePage = Math.max(1, page);
@@ -133,6 +135,10 @@ export async function getCarsPaginated(
 
     if (category && category !== "all") {
       filter.category = category;
+    }
+
+    if (transmission && (transmission === "Automatic" || transmission === "Manual")) {
+      filter.transmission = transmission;
     }
 
     if (q.trim()) {

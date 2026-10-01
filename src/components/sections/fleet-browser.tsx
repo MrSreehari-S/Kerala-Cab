@@ -24,11 +24,9 @@ interface FleetBrowserProps {
 }
 
 const categories: { value: string; label: string }[] = [
-  { value: "all", label: "All Cars" },
+  { value: "all", label: "Cab" },
+  { value: "sedan", label: "Rent a Car" },
   { value: "luxury", label: "Luxury" },
-  { value: "suv", label: "SUV" },
-  { value: "sedan", label: "Sedan" },
-  { value: "wedding", label: "Wedding" },
 ];
 
 export function FleetBrowser({ cars, onBook, dbError = false }: FleetBrowserProps) {
