@@ -220,12 +220,10 @@
     padding-right: 0.09em;
   }
 
-  /* Glass panels */
   .glass {
     @apply bg-card/60 backdrop-blur-xl border border-border/50;
   }
 
-  /* Smooth image zoom on hover */
   .img-zoom {
     @apply transition-transform duration-700 ease-out;
   }
@@ -234,7 +232,6 @@
     transform: scale(1.06);
   }
 
-  /* Car card tile glow on hover */
   .car-card-tile {
     background: linear-gradient(
       180deg,
