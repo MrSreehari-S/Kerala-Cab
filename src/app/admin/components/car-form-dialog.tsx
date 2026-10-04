@@ -43,6 +43,8 @@ interface FormValues {
   fuelType: "Petrol" | "Diesel" | "Hybrid" | "Electric";
   seats: number;
   isChauffeurOnly: boolean;
+  extraKmPrice: number;
+  extraHourPrice: number;
 }
 
 function slugify(text: string): string {
@@ -84,6 +86,8 @@ export function CarFormDialog({
       fuelType: "Petrol",
       seats: 5,
       isChauffeurOnly: false,
+      extraKmPrice: 0,
+      extraHourPrice: 0,
     },
   });
 
@@ -109,6 +113,8 @@ export function CarFormDialog({
         fuelType: car.fuelType,
         seats: car.seats,
         isChauffeurOnly: car.isChauffeurOnly || false,
+        extraKmPrice: car.extraKmPrice || 0,
+        extraHourPrice: car.extraHourPrice || 0,
       });
       setImages(car.images || []);
       setFeatures(car.features || []);
@@ -291,16 +297,16 @@ export function CarFormDialog({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
-            {/* Price */}
+            {/* Minimum Charge */}
             <div className="space-y-1.5">
               <label className="font-sans text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Price / Day (₹) *
+                Minimum Charge (₹) *
               </label>
               <Input
                 type="number"
                 {...register("pricePerDay", {
-                  required: "Price is required",
-                  min: { value: 500, message: "Minimum ₹500" },
+                  required: "Minimum charge is required",
+                  min: { value: 100, message: "Minimum ₹100" },
                 })}
                 className="font-sans"
               />
@@ -350,6 +356,49 @@ export function CarFormDialog({
                   </span>
                 </label>
               </div>
+            </div>
+          </div>
+
+          {/* ── Extra Pricing ── */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {/* Extra KM Price */}
+            <div className="space-y-1.5">
+              <label className="font-sans text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Extra KM Price (₹)
+              </label>
+              <Input
+                type="number"
+                {...register("extraKmPrice", {
+                  min: { value: 0, message: "Cannot be negative" },
+                })}
+                placeholder="e.g. 15"
+                className="font-sans"
+              />
+              {errors.extraKmPrice && (
+                <p className="font-sans text-xs text-destructive">
+                  {errors.extraKmPrice.message}
+                </p>
+              )}
+            </div>
+
+            {/* Extra Hour Price */}
+            <div className="space-y-1.5">
+              <label className="font-sans text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Extra Hour Price (₹)
+              </label>
+              <Input
+                type="number"
+                {...register("extraHourPrice", {
+                  min: { value: 0, message: "Cannot be negative" },
+                })}
+                placeholder="e.g. 200"
+                className="font-sans"
+              />
+              {errors.extraHourPrice && (
+                <p className="font-sans text-xs text-destructive">
+                  {errors.extraHourPrice.message}
+                </p>
+              )}
             </div>
           </div>
 

@@ -21,6 +21,8 @@ export interface Car {
   images: string[];
   isChauffeurOnly?: boolean;
   features?: string[];
+  extraKmPrice?: number;
+  extraHourPrice?: number;
 }
 
 /**

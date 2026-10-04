@@ -250,14 +250,28 @@ export function CarDetailModal({
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-border bg-gradient-to-r from-card via-muted/30 to-card p-5">
             <div>
               <p className="font-sans text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-                Daily Rental Rate
+                Minimum Charge
               </p>
               <div className="flex items-baseline gap-1">
                 <span className="font-serif text-3xl font-bold text-accent">
                   ₹{car.pricePerDay.toLocaleString("en-IN")}
                 </span>
-                <span className="font-sans text-xs text-muted-foreground">/ 24 Hours</span>
               </div>
+              {(car.extraKmPrice != null || car.extraHourPrice != null) && (
+                <div className="mt-1 flex items-center gap-2.5 text-xs text-muted-foreground font-sans">
+                  {car.extraKmPrice != null && (
+                    <span>
+                      Extra km: <strong className="text-foreground">₹{car.extraKmPrice}</strong>
+                    </span>
+                  )}
+                  {car.extraKmPrice != null && car.extraHourPrice != null && <span>•</span>}
+                  {car.extraHourPrice != null && (
+                    <span>
+                      Extra hour: <strong className="text-foreground">₹{car.extraHourPrice}</strong>
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="flex w-full sm:w-auto items-center gap-3">

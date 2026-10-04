@@ -77,6 +77,8 @@ export async function POST(request: NextRequest) {
       images: body.images || [],
       isChauffeurOnly: body.isChauffeurOnly || false,
       features: body.features || [],
+      extraKmPrice: body.extraKmPrice ? Number(body.extraKmPrice) : undefined,
+      extraHourPrice: body.extraHourPrice ? Number(body.extraHourPrice) : undefined,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

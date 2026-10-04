@@ -29,6 +29,8 @@ export function serializeCarDoc(doc: WithId<Document>): Car {
     images: doc.images ?? [],
     isChauffeurOnly: doc.isChauffeurOnly,
     features: doc.features,
+    extraKmPrice: doc.extraKmPrice,
+    extraHourPrice: doc.extraHourPrice,
   } as Car;
 }
 

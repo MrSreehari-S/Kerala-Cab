@@ -29,10 +29,10 @@ import { FooterSection } from "@/components/sections/footer";
 import { BookingModal } from "@/components/sections/booking-modal";
 import type { Car } from "@/data/cars";
 
-const categories: { value: string; label: string; icon: string }[] = [
-  { value: "all", label: "Cab", icon: "🚕" },
-  { value: "sedan", label: "Rent a Car", icon: "🚗" },
-  { value: "luxury", label: "Luxury", icon: "✨" },
+const categories: { value: string; label: string }[] = [
+  { value: "all", label: "Cab" },
+  { value: "sedan", label: "Rent a Car" },
+  { value: "luxury", label: "Luxury" },
 ];
 
 type SortOption = "price-asc" | "price-desc" | "name-asc" | "seats-desc";
@@ -215,7 +215,6 @@ export function FleetPageClient({
                         : "bg-card border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground hover:border-border"
                     }`}
                   >
-                    <span className="text-sm">{cat.icon}</span>
                     {cat.label}
                   </button>
                 ))}

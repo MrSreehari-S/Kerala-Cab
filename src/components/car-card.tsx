@@ -141,19 +141,35 @@ export function CarCard({
           </div>
         </div>
 
-        {/* Price section */}
-        <div className="mb-5 flex w-full items-center justify-center gap-2">
+        {/* Pricing section: Minimum Charge, Extra KM, Extra Hour */}
+        <div className="mb-5 flex w-full flex-col items-center gap-2 rounded-xl border border-border/50 bg-muted/40 p-3">
           <div className="text-center">
-            <p className="font-sans text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Starting From
+            <p className="font-sans text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              Minimum Charge
             </p>
-            <p className="mt-0.5 font-sans text-2xl font-extrabold">
+            <p className="mt-0.5 font-sans text-2xl font-extrabold text-foreground">
               <span className="font-serif text-accent">₹</span>
               {car.pricePerDay.toLocaleString("en-IN")}
-              <span className="text-xs font-normal text-muted-foreground">
-                /day
-              </span>
             </p>
+          </div>
+          <div className="flex w-full items-center justify-around border-t border-border/50 pt-2 text-center">
+            <div className="flex flex-col items-center">
+              <span className="font-sans text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                Extra KM
+              </span>
+              <span className="font-sans text-xs font-bold text-foreground">
+                {car.extraKmPrice ? `₹${car.extraKmPrice}/km` : "₹--"}
+              </span>
+            </div>
+            <div className="h-6 w-px bg-border/60" />
+            <div className="flex flex-col items-center">
+              <span className="font-sans text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                Extra Hour
+              </span>
+              <span className="font-sans text-xs font-bold text-foreground">
+                {car.extraHourPrice ? `₹${car.extraHourPrice}/hr` : "₹--"}
+              </span>
+            </div>
           </div>
         </div>
 

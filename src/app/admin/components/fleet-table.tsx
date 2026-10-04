@@ -118,7 +118,7 @@ export function FleetTable({
             className="flex items-center gap-1 font-sans text-xs font-semibold uppercase tracking-wider"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Price / Day
+            Min. Charge
             <ArrowUpDown className="h-3 w-3" />
           </button>
         ),

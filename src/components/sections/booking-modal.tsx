@@ -91,8 +91,11 @@ export function BookingModal({ car, isOpen, onClose }: BookingModalProps) {
     const message = `Hello KeralaCabs, I would like to make an enquiry:
 
 *Vehicle:* ${car?.name}
-*Category:* ${car?.category ? car.category.charAt(0).toUpperCase() + car.category.slice(1) : ""}
-*Rate:* ₹${car?.pricePerDay ? car.pricePerDay.toLocaleString("en-IN") : ""}/day
+*Min. Charge:* ₹${car?.pricePerDay ? car.pricePerDay.toLocaleString("en-IN") : ""}${
+  car?.extraKmPrice ? `\n*Extra Km:* ₹${car.extraKmPrice}/km` : ""
+}${
+  car?.extraHourPrice ? `\n*Extra Hour:* ₹${car.extraHourPrice}/hr` : ""
+}
 
 *Rental Preferences:*
 • Type: ${data.rentalType.charAt(0).toUpperCase() + data.rentalType.slice(1)}
