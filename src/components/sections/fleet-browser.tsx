@@ -142,7 +142,7 @@ export function FleetBrowser({ cars, onBook, dbError = false }: FleetBrowserProp
           >
             <Button
               nativeButton={false}
-              className="group rounded-full bg-primary px-8 py-3 font-sans text-sm font-semibold text-primary-foreground transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:shadow-xl hover:shadow-accent/20 h-auto"
+              className="group rounded-full bg-gradient-to-r from-[#f4c066] via-[#e5b053] to-[#d49a37] px-8 py-3 font-sans text-sm font-semibold text-primary-foreground transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:shadow-xl hover:shadow-accent/20 h-auto"
               render={<Link href="/fleet" />}
             >
               Explore Full Fleet
