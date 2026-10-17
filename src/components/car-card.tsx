@@ -34,10 +34,9 @@ export function CarCard({
   const [hasError, setHasError] = useState(false);
 
   const categoryLabels: Record<string, string> = {
-    luxury: "LUXURY",
-    suv: "SUV",
+    cab: "CAB",
     "rent-a-car": "RENT A CAR",
-    wedding: "WEDDING",
+    luxury: "LUXURY",
   };
 
   const handleCardClick = () => {

@@ -240,10 +240,9 @@ export function CarFormDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="luxury">Luxury</SelectItem>
-                  <SelectItem value="suv">SUV</SelectItem>
+                  <SelectItem value="cab">Cab</SelectItem>
                   <SelectItem value="rent-a-car">Rent a Car</SelectItem>
-                  <SelectItem value="wedding">Wedding</SelectItem>
+                  <SelectItem value="luxury">Luxury</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -50,10 +50,9 @@ export function CarDetailModal({
   const currentImage = images[activeImageIndex] || "";
 
   const categoryLabels: Record<string, string> = {
-    luxury: "Luxury Fleet",
-    suv: "SUV / Crossover",
+    cab: "Cab",
     "rent-a-car": "Rent a Car",
-    wedding: "Wedding Special",
+    luxury: "Luxury Fleet",
   };
 
   const handlePrevImage = () =>
