@@ -67,8 +67,8 @@ export const CARS_SCHEMA_VALIDATOR = {
         description: "SEO URL slug (required string)",
       },
       category: {
-        enum: ["luxury", "suv", "sedan", "wedding"],
-        description: "Category must be one of: luxury, suv, sedan, wedding",
+        enum: ["luxury", "suv", "rent-a-car", "wedding"],
+        description: "Category must be one of: luxury, suv, rent-a-car, wedding",
       },
       tagline: { bsonType: "string", description: "Marketing tagline" },
       pricePerDay: {

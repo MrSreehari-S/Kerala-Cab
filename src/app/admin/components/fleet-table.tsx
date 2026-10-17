@@ -34,7 +34,7 @@ const PLACEHOLDER_IMG =
 const categoryColors: Record<string, string> = {
   luxury: "bg-amber-500/15 text-amber-400 border-amber-500/20",
   suv: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
-  sedan: "bg-blue-500/15 text-blue-400 border-blue-500/20",
+  "rent-a-car": "bg-blue-500/15 text-blue-400 border-blue-500/20",
   wedding: "bg-pink-500/15 text-pink-400 border-pink-500/20",
 };
 

@@ -31,7 +31,7 @@ import type { Car } from "@/data/cars";
 
 const categories: { value: string; label: string }[] = [
   { value: "all", label: "Cab" },
-  { value: "sedan", label: "Rent a Car" },
+  { value: "rent-a-car", label: "Rent a Car" },
   { value: "luxury", label: "Luxury" },
 ];
 

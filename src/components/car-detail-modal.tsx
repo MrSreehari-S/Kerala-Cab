@@ -57,7 +57,7 @@ export function CarDetailModal({
   const categoryLabels: Record<string, string> = {
     luxury: "Luxury Fleet",
     suv: "SUV / Crossover",
-    sedan: "Executive Sedan",
+    "rent-a-car": "Rent a Car",
     wedding: "Wedding Special",
   };
 

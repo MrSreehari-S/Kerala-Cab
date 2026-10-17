@@ -79,7 +79,7 @@ export function CarFormDialog({
     defaultValues: {
       name: "",
       slug: "",
-      category: "sedan",
+      category: "rent-a-car",
       tagline: "",
       pricePerDay: 3000,
       transmission: "Automatic",
@@ -242,7 +242,7 @@ export function CarFormDialog({
                 <SelectContent>
                   <SelectItem value="luxury">Luxury</SelectItem>
                   <SelectItem value="suv">SUV</SelectItem>
-                  <SelectItem value="sedan">Sedan</SelectItem>
+                  <SelectItem value="rent-a-car">Rent a Car</SelectItem>
                   <SelectItem value="wedding">Wedding</SelectItem>
                 </SelectContent>
               </Select>

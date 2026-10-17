@@ -36,7 +36,7 @@ export function CarCard({
   const categoryLabels: Record<string, string> = {
     luxury: "LUXURY",
     suv: "SUV",
-    sedan: "SEDAN",
+    "rent-a-car": "RENT A CAR",
     wedding: "WEDDING",
   };
 
