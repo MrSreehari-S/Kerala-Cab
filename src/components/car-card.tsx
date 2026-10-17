@@ -34,10 +34,9 @@ export function CarCard({
   const [hasError, setHasError] = useState(false);
 
   const categoryLabels: Record<string, string> = {
+    cab: "CAB",
+    "rent-a-car": "RENT A CAR",
     luxury: "LUXURY",
-    suv: "SUV",
-    sedan: "SEDAN",
-    wedding: "WEDDING",
   };
 
   const handleCardClick = () => {
@@ -53,7 +52,7 @@ export function CarCard({
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       onClick={handleCardClick}
-      className={`group/card car-card-tile relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card text-card-foreground shadow-md transition-all duration-500 hover:shadow-2xl hover:shadow-accent/10 hover:border-accent/40 ${
+       className={`group/card car-card-tile relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card text-card-foreground shadow-md transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-accent/10 hover:border-accent/40 ${
         onViewDetail ? "cursor-pointer" : ""
       }`}
     >
@@ -108,7 +107,7 @@ export function CarCard({
         </h3>
 
         {/* Tagline */}
-        <p className="mb-4 text-center font-sans text-xs text-muted-foreground italic">
+        <p className="mb-4 text-center font-sans text-xs text-muted-foreground italic line-clamp-2">
           {car.tagline}
         </p>
 
@@ -120,7 +119,7 @@ export function CarCard({
         </div>
 
         {/* Spec row */}
-        <div className="mb-5 flex w-full items-center justify-center gap-3">
+        <div className="mb-5 flex w-full flex-wrap items-center justify-center gap-2">
           <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/50 px-3 py-1.5">
             <Users className="h-3.5 w-3.5 text-accent/80" />
             <span className="font-sans text-[11px] font-medium text-muted-foreground">
@@ -176,7 +175,7 @@ export function CarCard({
         {/* Action buttons row */}
         <div className="mt-auto flex w-full flex-col gap-2.5">
           {/* Call & WhatsApp row */}
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <a
               href="tel:+919876543210"
               onClick={(e) => e.stopPropagation()}

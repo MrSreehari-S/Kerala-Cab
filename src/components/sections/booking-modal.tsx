@@ -30,7 +30,7 @@ interface BookingFormValues {
   fullName: string;
   email: string;
   phone: string;
-  rentalType: "self-drive" | "chauffeur-driven" | "wedding";
+  rentalType: "self-drive" | "chauffeur-driven";
 }
 
 interface BookingModalProps {
@@ -287,9 +287,7 @@ export function BookingModal({ car, isOpen, onClose }: BookingModalProps) {
                           <SelectItem value="chauffeur-driven">
                             Chauffeur Driven
                           </SelectItem>
-                          <SelectItem value="wedding">
-                            Wedding Rental
-                          </SelectItem>
+
                         </SelectContent>
                       </Select>
                     )}

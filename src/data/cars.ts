@@ -6,7 +6,7 @@
  * to fetch live data.
  */
 
-export type CarCategory = "luxury" | "suv" | "sedan" | "wedding";
+export type CarCategory = "cab" | "rent-a-car" | "luxury";
 
 export interface Car {
   id: string;

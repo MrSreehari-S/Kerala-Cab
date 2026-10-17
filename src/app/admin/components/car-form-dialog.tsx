@@ -79,7 +79,7 @@ export function CarFormDialog({
     defaultValues: {
       name: "",
       slug: "",
-      category: "sedan",
+      category: "rent-a-car",
       tagline: "",
       pricePerDay: 3000,
       transmission: "Automatic",
@@ -167,7 +167,7 @@ export function CarFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} autoComplete="off" className="space-y-6">
           {/* ── Basic Info ── */}
           <div className="grid gap-4 sm:grid-cols-2">
             {/* Name */}
@@ -177,6 +177,7 @@ export function CarFormDialog({
               </label>
               <Input
                 {...register("name", { required: "Name is required" })}
+                autoComplete="off"
                 placeholder="e.g. Mercedes-Benz S-Class"
                 className="font-sans"
               />
@@ -194,6 +195,7 @@ export function CarFormDialog({
               </label>
               <Input
                 {...register("slug", { required: "Slug is required" })}
+                autoComplete="off"
                 placeholder="mercedes-s-class"
                 className="font-sans text-muted-foreground"
               />
@@ -240,10 +242,9 @@ export function CarFormDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="cab">Cab</SelectItem>
+                  <SelectItem value="rent-a-car">Rent a Car</SelectItem>
                   <SelectItem value="luxury">Luxury</SelectItem>
-                  <SelectItem value="suv">SUV</SelectItem>
-                  <SelectItem value="sedan">Sedan</SelectItem>
-                  <SelectItem value="wedding">Wedding</SelectItem>
                 </SelectContent>
               </Select>
             </div>

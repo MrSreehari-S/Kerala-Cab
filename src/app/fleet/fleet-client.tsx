@@ -30,8 +30,9 @@ import { BookingModal } from "@/components/sections/booking-modal";
 import type { Car } from "@/data/cars";
 
 const categories: { value: string; label: string }[] = [
-  { value: "all", label: "Cab" },
-  { value: "sedan", label: "Rent a Car" },
+  { value: "all", label: "All" },
+  { value: "cab", label: "Cab" },
+  { value: "rent-a-car", label: "Rent a Car" },
   { value: "luxury", label: "Luxury" },
 ];
 
@@ -284,7 +285,7 @@ export function FleetPageClient({
         </section>
 
         {/* ── Filters Bar ── */}
-        <section className="sticky top-16 z-40 border-b border-border bg-background/80 backdrop-blur-xl md:top-20">
+        <section className="border-b border-border bg-background">
           <div className="section-container py-4">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               {/* Search Input */}

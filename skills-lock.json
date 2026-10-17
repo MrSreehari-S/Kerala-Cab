@@ -1,6 +1,48 @@
 {
   "version": 1,
   "skills": {
+    "auth-implementation-patterns": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/auth-implementation-patterns/SKILL.md",
+      "computedHash": "948e4c9df895c00a9574f9e6c68ef5065f44e2a1696d737ff7b92fcf6d0e5dd5"
+    },
+    "backend-dev-guidelines": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/backend-dev-guidelines/SKILL.md",
+      "computedHash": "074094e8e4c78e2e767095145b099ffd3a595d7e6898e9f3f62943d03b2ec21c"
+    },
+    "brainstorming": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brainstorming/SKILL.md",
+      "computedHash": "05d254c7ec4a515c64576f853bb33d4c5a611d90edc6bb033ec3625174a10bed"
+    },
+    "concise-planning": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/concise-planning/SKILL.md",
+      "computedHash": "20faf6368b4ce3f35f17d28323666d586cba9f1638d04ead29e67af295d6d47e"
+    },
+    "database-design": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/database-design/SKILL.md",
+      "computedHash": "f3a1ed6e8a5b622c430c0ff9d68b8926f8f5cc70a180117cedc4a1a8ddae2527"
+    },
+    "frontend-design": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "808e01b929a2b0fabaede596026c8072ba967fe970ac331f2e75367ce548b3c0"
+    },
+    "frontend-developer": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-developer/SKILL.md",
+      "computedHash": "433c1de72312aed1bd4be7c92931293c1e503d925ab41e3583fb95bff64c366e"
+    },
     "mongodb-atlas-stream-processing": {
       "source": "mongodb/agent-skills",
       "sourceType": "github",
@@ -25,11 +67,23 @@
       "skillPath": "plugins/frontend-mobile-development/skills/nextjs-app-router-patterns/SKILL.md",
       "computedHash": "3a46e9093baecb3a85819529ce05006f817663f48d9e872868c32ae6049c0d5c"
     },
+    "react-patterns": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-patterns/SKILL.md",
+      "computedHash": "a417f1ad54433907a219d042bf8a0737b61268f52bc71379bc61a71b344a58f0"
+    },
     "sentry-nextjs-sdk": {
       "source": "getsentry/sentry-for-ai",
       "sourceType": "github",
       "skillPath": "skills-legacy/sentry-nextjs-sdk/SKILL.md",
       "computedHash": "1484b4da0b1dac637f8b71e6b8bfdfe77ed581ab34b0c83d26a73ab3efce4f93"
+    },
+    "writing-plans": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/writing-plans/SKILL.md",
+      "computedHash": "725642a4094f4e594d29f185539319ee0a6840fc45b2626415e97a1418f83c1d"
     }
   }
 }
