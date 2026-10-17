@@ -132,23 +132,23 @@ export function FleetBrowser({ cars, onBook, dbError = false }: FleetBrowserProp
           </Tabs>
         )}
 
-          {/* ── View All CTA ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-12 flex justify-center"
+        {/* ── View All CTA ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mt-12 flex justify-center"
+        >
+          <Button
+            nativeButton={false}
+            className="group rounded-full bg-gradient-to-r from-[#f4c066] via-[#e5b053] to-[#d49a37] px-8 py-3 font-sans text-sm font-semibold text-primary-foreground transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:shadow-xl hover:shadow-accent/20 h-auto"
+            render={<Link href="/fleet" />}
           >
-            <Button
-              nativeButton={false}
-              className="group rounded-full bg-gradient-to-r from-[#f4c066] via-[#e5b053] to-[#d49a37] px-8 py-3 font-sans text-sm font-semibold text-primary-foreground transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:shadow-xl hover:shadow-accent/20 h-auto"
-              render={<Link href="/fleet" />}
-            >
-              Explore Full Fleet
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Button>
-          </motion.div>
+            Explore Full Fleet
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </Button>
+        </motion.div>
       </div>
     </section>
   );
