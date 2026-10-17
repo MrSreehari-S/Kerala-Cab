@@ -18,6 +18,49 @@ interface ImageUploadProps {
   maxImages?: number;
 }
 
+async function compressImage(file: File): Promise<File> {
+  if (!file.type.startsWith("image/")) return file;
+
+  const bitmap = await createImageBitmap(file);
+  const MAX_DIM = 1920;
+  let { width, height } = bitmap;
+
+  if (width > MAX_DIM || height > MAX_DIM) {
+    const scale = MAX_DIM / Math.max(width, height);
+    width = Math.round(width * scale);
+    height = Math.round(height * scale);
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    bitmap.close();
+    return file;
+  }
+  ctx.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+
+  const targetType =
+    file.type === "image/png" ? "image/webp" : file.type;
+  const quality = targetType === "image/png" ? undefined : 0.95;
+
+  const blob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, targetType, quality);
+  });
+
+  if (!blob || blob.size >= file.size) return file;
+
+  const ext =
+    targetType === "image/webp"
+      ? ".webp"
+      : file.name.slice(file.name.lastIndexOf("."));
+  const baseName = file.name.replace(/\.[^.]+$/, "");
+
+  return new File([blob], `${baseName}${ext}`, { type: targetType });
+}
+
 interface UploadProgress {
   file: File;
   preview: string;
@@ -65,9 +108,14 @@ export function ImageUpload({
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       const remainingSlots = maxImages - images.length;
-      const filesToUpload = acceptedFiles.slice(0, remainingSlots);
+      const rawFiles = acceptedFiles.slice(0, remainingSlots);
 
-      if (filesToUpload.length === 0) return;
+      if (rawFiles.length === 0) return;
+
+      // Compress images (visually lossless) before upload to reduce payload
+      const filesToUpload = await Promise.all(
+        rawFiles.map((file) => compressImage(file))
+      );
 
       // Create upload progress entries with previews
       const newUploads: UploadProgress[] = filesToUpload.map((file) => ({

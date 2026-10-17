@@ -24,7 +24,8 @@ interface FleetBrowserProps {
 }
 
 const categories: { value: string; label: string }[] = [
-  { value: "all", label: "Cab" },
+  { value: "all", label: "All" },
+  { value: "cab", label: "Cab" },
   { value: "rent-a-car", label: "Rent a Car" },
   { value: "luxury", label: "Luxury" },
 ];
