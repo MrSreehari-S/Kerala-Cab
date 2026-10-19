@@ -244,4 +244,41 @@
       0 8px 32px color-mix(in oklch, var(--color-accent) 12%, transparent 88%),
       0 0 0 1px color-mix(in oklch, var(--color-accent) 25%, transparent 75%);
   }
+
+  /* ── Image Shimmer Skeleton ── */
+  .shimmer-skeleton {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      color-mix(in oklch, var(--color-accent) 12%, transparent 88%) 45%,
+      color-mix(in oklch, var(--color-accent) 20%, transparent 80%) 50%,
+      color-mix(in oklch, var(--color-accent) 12%, transparent 88%) 55%,
+      transparent 70%
+    );
+    background-size: 250% 100%;
+    animation: shimmer-sweep 1.8s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shimmer-skeleton::after {
+      animation: none;
+      opacity: 0.5;
+    }
+  }
+}
+
+@keyframes shimmer-sweep {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

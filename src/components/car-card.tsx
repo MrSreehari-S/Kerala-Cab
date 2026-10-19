@@ -32,6 +32,7 @@ export function CarCard({
   const imageCount = car.images ? car.images.length : 0;
   const [imgSrc] = useState(hasImage ? car.images[0] : "");
   const [hasError, setHasError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const categoryLabels: Record<string, string> = {
     cab: "CAB",
@@ -59,28 +60,50 @@ export function CarCard({
       {/* ── Image Container ── */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
         {hasImage && !hasError ? (
-          <Image
-            src={imgSrc}
-            alt={`${car.name} — ${car.tagline}`}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition-transform duration-700 ease-out group-hover/card:scale-105"
-            onError={() => {
-              if (!hasError) {
-                setHasError(true);
-              }
-            }}
-            priority={priority}
-          />
+          <>
+            {/* Shimmer skeleton — visible until image loads */}
+            <div
+              className={`absolute inset-0 z-[1] shimmer-skeleton bg-muted transition-opacity duration-500 ease-out ${
+                isLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
+              }`}
+              aria-hidden="true"
+            >
+              <div className="flex h-full w-full items-center justify-center">
+                <CarIcon className="h-10 w-10 text-muted-foreground/20" />
+              </div>
+            </div>
+
+            {/* Actual image — fades in on load */}
+            <Image
+              src={imgSrc}
+              alt={`${car.name} — ${car.tagline}`}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className={`object-cover transition-all duration-700 ease-out group-hover/card:scale-105 ${
+                isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-[1.02]"
+              }`}
+              onLoad={() => setIsLoaded(true)}
+              onError={() => {
+                if (!hasError) {
+                  setHasError(true);
+                }
+              }}
+              priority={priority}
+            />
+          </>
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             <CarIcon className="h-12 w-12 text-muted-foreground/30" />
           </div>
         )}
 
-        {/* Gradient overlay */}
+        {/* Gradient overlay — only after image loaded */}
         {hasImage && !hasError && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+          <div
+            className={`absolute inset-0 z-[2] bg-gradient-to-t from-black/40 via-transparent to-transparent transition-opacity duration-500 ${
+              isLoaded ? "opacity-100" : "opacity-0"
+            }`}
+          />
         )}
 
         {/* Photo count badge */}
@@ -177,7 +200,7 @@ export function CarCard({
           {/* Call & WhatsApp row */}
           <div className="flex flex-col gap-2 sm:flex-row">
             <a
-              href="tel:+919876543210"
+              href="tel:+917012436857"
               onClick={(e) => e.stopPropagation()}
               className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border/80 bg-card px-3 py-2 font-sans text-xs font-semibold text-foreground transition-all duration-300 hover:border-accent/50 hover:bg-accent/5 hover:text-accent"
             >
@@ -185,7 +208,7 @@ export function CarCard({
               Call Now
             </a>
             <a
-              href={`https://wa.me/919876543210?text=${encodeURIComponent(`Hi, I'm interested in booking the ${car.name}`)}`}
+              href={`https://wa.me/917012436857?text=${encodeURIComponent(`Hi, I'm interested in booking the ${car.name}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
