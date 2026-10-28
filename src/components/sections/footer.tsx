@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
+import { HashLink } from "@/components/hash-link";
 import localFont from "next/font/local";
 import {
   Accordion,
@@ -122,10 +123,10 @@ export function FooterSection() {
                     Services
                   </h4>
                   <ul className="space-y-2 text-primary-foreground/60 font-sans">
-                    <li><a href="#fleet" className="hover:text-accent transition-colors">Self-Drive Rentals</a></li>
-                    <li><a href="#fleet" className="hover:text-accent transition-colors">Chauffeur Driven</a></li>
-                    <li><a href="#fleet" className="hover:text-accent transition-colors">Wedding Cars</a></li>
-                    <li><a href="#fleet" className="hover:text-accent transition-colors">Airport Transfers</a></li>
+                    <li><HashLink href="/#fleet" className="hover:text-accent transition-colors">Self-Drive Rentals</HashLink></li>
+                    <li><HashLink href="/#fleet" className="hover:text-accent transition-colors">Chauffeur Driven</HashLink></li>
+                    <li><HashLink href="/#fleet" className="hover:text-accent transition-colors">Wedding Cars</HashLink></li>
+                    <li><HashLink href="/#fleet" className="hover:text-accent transition-colors">Airport Transfers</HashLink></li>
                   </ul>
                 </div>
                 <div>
@@ -133,9 +134,9 @@ export function FooterSection() {
                     Company
                   </h4>
                   <ul className="space-y-2 text-primary-foreground/60 font-sans">
-                    <li><a href="/#why-us" className="hover:text-accent transition-colors">About Us</a></li>
-                    <li><a href="/#testimonials" className="hover:text-accent transition-colors">Reviews</a></li>
-                    <li><a href="/#faq" className="hover:text-accent transition-colors">FAQ</a></li>
+                    <li><HashLink href="/#why-us" className="hover:text-accent transition-colors">About Us</HashLink></li>
+                    <li><HashLink href="/#testimonials" className="hover:text-accent transition-colors">Reviews</HashLink></li>
+                    <li><HashLink href="/#faq" className="hover:text-accent transition-colors">FAQ</HashLink></li>
                     <li><Link href="/contact" className="hover:text-accent transition-colors">Contact</Link></li>
                   </ul>
                 </div>

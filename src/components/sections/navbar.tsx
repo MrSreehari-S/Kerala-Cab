@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Phone } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { HashLink } from "@/components/hash-link";
 import localFont from "next/font/local";
 
 const riseOfKingdom = localFont({
@@ -85,23 +86,27 @@ export function Navbar({ hidden = false }: NavbarProps = {}) {
           className="hidden items-center gap-1 md:flex relative z-10 bg-white/[0.04] p-1 rounded-full border border-white/10 shadow-inner"
           onMouseLeave={() => setHoveredIndex(null)}
         >
-          {navLinks.map((link, idx) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onMouseEnter={() => setHoveredIndex(idx)}
-              className="relative px-4 py-1.5 font-sans text-xs uppercase tracking-widest font-medium text-white/80 transition-colors duration-200 hover:text-white"
-            >
-              {hoveredIndex === idx && (
-                <motion.div
-                  layoutId="navbar-hover-pill"
-                  className="absolute inset-0 rounded-full bg-white/15 backdrop-blur-md border border-white/20"
-                  transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                />
-              )}
-              <span className="relative z-10">{link.label}</span>
-            </Link>
-          ))}
+          {navLinks.map((link, idx) => {
+            const isHash = link.href.includes("#");
+            const LinkComp = isHash ? HashLink : Link;
+            return (
+              <LinkComp
+                key={link.href}
+                href={link.href}
+                onMouseEnter={() => setHoveredIndex(idx)}
+                className="relative px-4 py-1.5 font-sans text-xs uppercase tracking-widest font-medium text-white/80 transition-colors duration-200 hover:text-white"
+              >
+                {hoveredIndex === idx && (
+                  <motion.div
+                    layoutId="navbar-hover-pill"
+                    className="absolute inset-0 rounded-full bg-white/15 backdrop-blur-md border border-white/20"
+                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10">{link.label}</span>
+              </LinkComp>
+            );
+          })}
         </nav>
 
         {/* ── Desktop CTA Button ── */}
@@ -140,16 +145,20 @@ export function Navbar({ hidden = false }: NavbarProps = {}) {
             className="pointer-events-auto mx-auto mt-2 max-w-sm overflow-hidden rounded-2xl border border-white/15 bg-black/80 backdrop-blur-2xl p-4 shadow-2xl md:hidden"
           >
             <nav className="flex flex-col gap-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsMobileOpen(false)}
-                  className="rounded-xl px-4 py-2.5 font-sans text-sm font-medium text-white/90 transition-all hover:bg-white/10 hover:text-white hover:pl-6"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                const isHash = link.href.includes("#");
+                const LinkComp = isHash ? HashLink : Link;
+                return (
+                  <LinkComp
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsMobileOpen(false)}
+                    className="rounded-xl px-4 py-2.5 font-sans text-sm font-medium text-white/90 transition-all hover:bg-white/10 hover:text-white hover:pl-6"
+                  >
+                    {link.label}
+                  </LinkComp>
+                );
+              })}
               <div className="mt-2 pt-2 border-t border-white/10">
                 <Button
                   nativeButton={false}
