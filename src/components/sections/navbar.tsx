@@ -6,6 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Phone } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import localFont from "next/font/local";
+
+const riseOfKingdom = localFont({
+  src: "../../../public/fonts/rise-of-kingdom.regular.ttf",
+  display: "swap",
+  variable: "--font-rise-of-kingdom",
+});
 
 const navLinks = [
   { label: "Fleet", href: "/fleet" },
@@ -68,8 +75,8 @@ export function Navbar({ hidden = false }: NavbarProps = {}) {
               priority
             />
           </div>
-          <span className="font-serif italic font-semibold text-lg md:text-xl text-white tracking-tight leading-none ">
-            Kerala <span className="text-gold-gradient font-light">Cabs</span>
+          <span className={`${riseOfKingdom.className} text-xl md:text-2xl text-white tracking-wide leading-none`}>
+            Kerala <span className="text-gold-gradient">Cabs</span>
           </span>
         </Link>
 

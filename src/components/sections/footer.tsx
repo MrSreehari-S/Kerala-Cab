@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
+import localFont from "next/font/local";
 import {
   Accordion,
   AccordionContent,
@@ -17,6 +18,11 @@ import {
   Phone,
   Globe,
 } from "lucide-react";
+
+const riseOfKingdom = localFont({
+  src: "../../../public/fonts/rise-of-kingdom.regular.ttf",
+  display: "swap",
+});
 
 const faqs = [
   {
@@ -66,13 +72,12 @@ export function FooterSection() {
                   className="h-14 w-auto object-contain rounded-md"
                 />
                 <h1
-                  className="font-serif italic font-bold text-white tracking-tight leading-none drop-shadow-2xl"
+                  className={`${riseOfKingdom.className} text-white tracking-wide leading-none drop-shadow-2xl`}
                   style={{
                     fontSize: "clamp(2rem, 4vw, 3.25rem)",
-                    fontFamily: "'Instrument Serif', 'Playfair Display', Georgia, serif",
                   }}
                 >
-                  Kerala <span className="text-gold-gradient font-light">Cabs</span>
+                  Kerala <span className="text-gold-gradient">Cabs</span>
                 </h1>
               </div>
               <p className="mb-6 max-w-sm font-sans text-sm font-semibold leading-relaxed text-accent">

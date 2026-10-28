@@ -10,6 +10,12 @@ import { useScroll, useTransform, motion, MotionValue, AnimatePresence } from "m
 import { ArrowRight, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import localFont from "next/font/local";
+
+const riseOfKingdom = localFont({
+  src: "../../public/fonts/rise-of-kingdom.regular.ttf",
+  display: "swap",
+});
 
 /* ════════════════════════════════════════════════════════════
    CONFIGURATION
@@ -724,13 +730,12 @@ function InitialHeroTitle({
 
       <div className="relative z-10 flex flex-col items-center gap-3">
         <h1
-          className="font-serif italic font-bold text-white tracking-tight leading-none drop-shadow-2xl"
+          className={`${riseOfKingdom.className} text-white tracking-wide leading-none drop-shadow-2xl`}
           style={{
             fontSize: "clamp(3.5rem, 10vw, 9rem)",
-            // fontFamily: "'Instrument Serif', 'Playfair Display', Georgia, serif",
           }}
         >
-          Kerala <span className="text-gold-gradient font-light">Cabs</span>
+          Kerala <span className="text-gold-gradient">Cabs</span>
         </h1>
         <p className="font-sans text-xs sm:text-sm font-light tracking-[0.2em] text-zinc-300 uppercase mt-2">
           Chauffeur-Driven Luxury Fleet
@@ -795,8 +800,8 @@ function MobileHeroTitle() {
 
       {/* ── TOP: brand name + tagline (sits below navbar) ── */}
       <div className="absolute inset-x-0 top-0 px-5 pt-24 sm:px-6 sm:pt-28">
-        <div className="font-serif italic font-bold text-white tracking-tight leading-none text-[3.55rem] sm:text-[4.0rem] drop-shadow-xl">
-          Kerala <span className="text-gold-gradient font-light">Cabs</span>
+        <div className={`${riseOfKingdom.className} text-white tracking-wide leading-none text-[3.55rem] sm:text-[4.0rem] drop-shadow-xl`}>
+          Kerala <span className="text-gold-gradient">Cabs</span>
         </div>
         <p className="mt-1.5 font-sans text-[9px] sm:text-[10px] font-light uppercase tracking-[0.2em] text-white/65">
           Chauffeur-Driven Luxury Fleet
